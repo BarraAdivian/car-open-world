@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>StreetBound — Night City</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#04060f;font-family:'Segoe UI',system-ui,sans-serif;color:#fff;user-select:none}
+#c{display:block;width:100%;height:100%}
+#vig{position:fixed;inset:0;pointer-events:none;z-index:1;background:radial-gradient(ellipse at 63% 44%,transparent 40%,rgba(0,0,0,.62) 100%)}
+#ui{position:fixed;inset:0;z-index:2;display:flex;flex-direction:column;justify-content:center;padding:0 6vw;pointer-events:none}
+#kicker{font-size:13px;font-weight:800;letter-spacing:7px;color:#67e8f9;text-shadow:0 0 16px #22d3ee99}
+h1{margin:8px 0 6px;font-size:min(10vw,92px);line-height:.9;font-style:italic;font-weight:900;letter-spacing:2px;
+ background:linear-gradient(93deg,#ffffff 5%,#ffd9a8 34%,#f97316 60%,#f43f5e 95%);-webkit-background-clip:text;background-clip:text;color:transparent;
+ filter:drop-shadow(0 0 24px rgba(249,115,22,.45)) drop-shadow(0 6px 14px rgba(0,0,0,.8))}
+h1 em{display:block;font-style:italic}
+#tag{margin:2px 0 0;font-size:14px;font-weight:600;letter-spacing:2px;color:#cbd5e1;text-shadow:0 2px 8px #000}
+#tag b{color:#fbbf24}
+#btns{display:flex;flex-direction:column;gap:14px;margin-top:36px;width:min(320px,82vw);pointer-events:auto}
+#btns button{font-family:inherit;cursor:pointer;border-radius:14px;font-weight:800;letter-spacing:4px;display:flex;align-items:center;justify-content:center;gap:12px;transition:.18s}
+#play{padding:18px 24px;font-size:22px;border:none;color:#1c0a02;background:linear-gradient(95deg,#fbbf24,#f97316 55%,#f43f5e);
+ box-shadow:0 6px 30px rgba(249,115,22,.55),inset 0 2px 0 rgba(255,255,255,.35);animation:pulse 2.2s infinite}
+#play:hover{transform:translateY(-3px) scale(1.02)}
+#play:active{transform:scale(.97)}
+#play:disabled{filter:grayscale(.5);cursor:wait;animation:none}
+@keyframes pulse{0%,100%{box-shadow:0 6px 30px rgba(249,115,22,.5),inset 0 2px 0 rgba(255,255,255,.35)}50%{box-shadow:0 8px 46px rgba(249,115,22,.85),inset 0 2px 0 rgba(255,255,255,.35)}}
+#set{padding:13px 22px;font-size:15px;background:rgba(11,18,32,.75);border:2px solid #334155;color:#cbd5e1}
+#set:hover{border-color:#64748b;color:#fff}
+@keyframes shk{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+#set.shk{animation:shk .3s}
+#saldo{margin-top:8px;font-size:13px;font-weight:800;letter-spacing:1px;color:#86efac;text-shadow:0 1px 6px #000}
+#foot{position:fixed;left:0;right:0;bottom:14px;z-index:2;text-align:center;font-size:12px;letter-spacing:1.5px;color:#94a3b8;text-shadow:0 1px 4px #000}
+#toast{position:fixed;top:26px;left:50%;transform:translateX(-50%) translateY(-10px);background:rgba(11,18,32,.92);border:1px solid #334155;padding:10px 22px;border-radius:10px;font-weight:800;letter-spacing:3px;font-size:14px;opacity:0;transition:.25s;z-index:3;pointer-events:none}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+#boot{position:fixed;inset:0;z-index:9;display:flex;align-items:center;justify-content:center;background:#04060f;font-weight:800;letter-spacing:5px;color:#67e8f9;font-size:15px}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="vig"></div>
+<div id="ui">
+ <div id="kicker">NIGHT CITY · OPEN WORLD</div>
+ <h1>STREET<em>BOUND</em></h1>
+ <div id="btns">
+  <button id="play">▶ &nbsp;PLAY</button>
+  <button id="set">⚙ &nbsp;SETTINGS</button>
+  <div id="saldo"></div>
+ </div>
+</div>
+<div id="foot">W A S D mengemudi &nbsp;·&nbsp; SHIFT nitro &nbsp;·&nbsp; E garasi / dealer / race &nbsp;·&nbsp; N siang–malam &nbsp;·&nbsp; P pause &nbsp;·&nbsp; Enter = PLAY</div>
+<div id="toast"></div>
+<div id="boot">MEMUAT KOTA MALAM…</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const $=id=>document.getElementById(id),TAU=Math.PI*2;
+if(!window.THREE){$('boot').textContent='GAGAL MEMUAT THREE.JS — PERIKSA KONEKSI INTERNET';$('boot').style.color='#f87171'}
+else{
+const rd=new THREE.WebGLRenderer({canvas:$('c'),antialias:true});
+rd.setPixelRatio(Math.min(devicePixelRatio,2));rd.outputEncoding=THREE.sRGBEncoding;rd.toneMapping=THREE.ACESFilmicToneMapping;rd.toneMappingExposure=1.0;
+rd.shadowMap.enabled=true;rd.shadowMap.type=THREE.PCFSoftShadowMap;
+const scene=new THREE.Scene();scene.fog=new THREE.Fog(0x070d1e,50,430);
+const camera=new THREE.PerspectiveCamera(55,1,.3,1500);
+const pm=new THREE.PMREMGenerator(rd);
+const cv=(w,h,f,rep)=>{const c=document.createElement('canvas');c.width=w;c.height=h;f(c.getContext('2d'),w,h);const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.anisotropy=8;if(rep)t.wrapS=t.wrapT=THREE.RepeatWrapping;return t};
+// environment map (pantulan cat mobil)
+{const c=document.createElement('canvas');c.width=512;c.height=256;const g=c.getContext('2d');
+ const gr=g.createLinearGradient(0,0,0,256);gr.addColorStop(0,'#04081a');gr.addColorStop(.48,'#15264f');gr.addColorStop(.54,'#33456f');gr.addColorStop(.6,'#141a2c');gr.addColorStop(1,'#090b12');g.fillStyle=gr;g.fillRect(0,0,512,256);
+ for(let i=0;i<70;i++){const x=Math.random()*512,y=132+Math.random()*26,rr=6+Math.random()*30;const rg=g.createRadialGradient(x,y,0,x,y,rr),cl=Math.random()<.55?'255,150,60':'80,190,255';rg.addColorStop(0,`rgba(${cl},.22)`);rg.addColorStop(1,`rgba(${cl},0)`);g.fillStyle=rg;g.fillRect(x-rr,y-rr,rr*2,rr*2)}
+ const tx=new THREE.CanvasTexture(c);tx.encoding=THREE.sRGBEncoding;const e=pm.fromEquirectangular(tx);tx.dispose();scene.environment=e.texture}
+// langit + bintang + bulan
+const sky=new THREE.Mesh(new THREE.SphereGeometry(700,32,16),new THREE.ShaderMaterial({side:THREE.BackSide,depthWrite:false,fog:false,
+ vertexShader:'varying vec3 v;void main(){v=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+ fragmentShader:'varying vec3 v;void main(){float h=clamp(v.y,-.1,1.);vec3 c=mix(vec3(.05,.09,.22),vec3(.008,.016,.05),pow(max(h,0.),.45));c=mix(vec3(.35,.16,.09),c,clamp(h/.09,0.,1.));gl_FragColor=vec4(c,1.);}'}));
+scene.add(sky);
+const sp0=[];for(let i=0;i<700;i++){const u=Math.random()*TAU,v=Math.random()*.9+.08,r=Math.sqrt(1-v*v);sp0.push(Math.cos(u)*r*650,v*650,Math.sin(u)*r*650)}
+scene.add(new THREE.Points(new THREE.BufferGeometry().setAttribute('position',new THREE.Float32BufferAttribute(sp0,3)),new THREE.PointsMaterial({color:0xffffff,size:1.6,sizeAttenuation:false,fog:false,depthWrite:false})));
+const smTex=cv(64,64,g=>{const gr=g.createRadialGradient(32,32,0,32,32,32);gr.addColorStop(0,'rgba(255,255,255,.95)');gr.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gr;g.fillRect(0,0,64,64)});
+const halo=(col,op)=>new THREE.SpriteMaterial({map:smTex,color:col,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,opacity:op});
+const moon=new THREE.Sprite(halo(0xdfe9ff,.95));moon.position.set(-320,330,-430);moon.scale.setScalar(150);scene.add(moon);
+// cahaya
+scene.add(new THREE.HemisphereLight(0x35508a,0x0a0c14,.32));
+const moonL=new THREE.DirectionalLight(0xbdd2ff,.7);moonL.position.set(-140,180,-90);moonL.castShadow=true;moonL.shadow.mapSize.set(2048,2048);
+Object.assign(moonL.shadow.camera,{left:-30,right:30,top:30,bottom:-30,near:1,far:500});moonL.shadow.camera.updateProjectionMatrix();moonL.shadow.bias=-.0004;
+scene.add(moonL,moonL.target);
+const key=new THREE.SpotLight(0xffe8c8,1.2,80,.5,.55,1);key.position.set(9,11,8);key.castShadow=true;key.shadow.mapSize.set(1024,1024);scene.add(key,key.target);
+const rim=new THREE.SpotLight(0x3f8fff,2.2,80,.6,.7,1);rim.position.set(-10,8,-9);scene.add(rim,rim.target);
+const cyanP=new THREE.PointLight(0x22d3ee,1.1,14,1.5);cyanP.position.set(0,.6,0);scene.add(cyanP);
+// tanah (plaza aspal) + laut + pantai
+const gTex=cv(512,512,(g,w,h)=>{g.fillStyle='#0d101a';g.fillRect(0,0,w,h);for(let i=0;i<9000;i++){const v=12+Math.random()*20|0;g.fillStyle=`rgba(${v},${v+4},${v+12},.5)`;g.fillRect(Math.random()*w,Math.random()*h,2,2)}},1);gTex.repeat.set(30,30);
+const plaza=new THREE.Mesh(new THREE.CircleGeometry(170,56).rotateX(-Math.PI/2),new THREE.MeshStandardMaterial({map:gTex,color:'#2a303e',roughness:.55,metalness:.1,envMapIntensity:.25}));
+plaza.receiveShadow=true;scene.add(plaza);
+const wTex=cv(256,256,(g,w,h)=>{g.fillStyle='#0d2f4e';g.fillRect(0,0,w,h);for(let k=0;k<160;k++){g.fillStyle=`rgba(180,220,255,${.03+Math.random()*.08})`;g.fillRect(Math.random()*w,Math.random()*h,10+Math.random()*30,2)}},1);wTex.repeat.set(60,60);
+const water=new THREE.Mesh(new THREE.PlaneGeometry(2400,2400).rotateX(-Math.PI/2),new THREE.MeshStandardMaterial({map:wTex,color:'#3d6e8f',roughness:.2,metalness:.45,envMapIntensity:.8}));
+water.position.y=-.22;scene.add(water);
+const sandT=cv(256,256,(g,w,h)=>{g.fillStyle='#6b5f40';g.fillRect(0,0,w,h);for(let i=0;i<7000;i++){const v=80+Math.random()*55|0;g.fillStyle=`rgba(${v},${v-14},${v-52},.4)`;g.fillRect(Math.random()*w,Math.random()*h,2,2)}},1);sandT.repeat.set(8,8);
+const sand=new THREE.Mesh(new THREE.CircleGeometry(90,40).rotateX(-Math.PI/2),new THREE.MeshStandardMaterial({map:sandT,color:'#6a6154',roughness:1}));
+sand.scale.set(1.6,1,1.05);sand.position.set(205,.06,-115);sand.receiveShadow=true;scene.add(sand);
+// gedung kota (jendela menyala)
+const winTex=cv(256,256,g=>{g.fillStyle='#232833';g.fillRect(0,0,256,256);for(let y=0;y<4;y++)for(let x=0;x<4;x++){g.fillStyle='#10161f';g.fillRect(x*64+10,y*64+12,44,38);g.fillStyle='#26405e';g.fillRect(x*64+10,y*64+12,44,13)}},1);
+const litTex=cv(256,256,g=>{g.fillStyle='#000';g.fillRect(0,0,256,256);const c=['#ffd27a','#ffe9b0','#bfe3ff','#ffc060'];for(let y=0;y<4;y++)for(let x=0;x<4;x++)if(Math.random()<.4){g.fillStyle=c[Math.random()*4|0];g.fillRect(x*64+10,y*64+12,44,38)}},1);
+const cityM=['#2a3140','#343b4d','#262c3a','#3a4254'].map(c=>new THREE.MeshStandardMaterial({color:c,map:winTex,emissiveMap:litTex,emissive:0xffffff,emissiveIntensity:1.05,roughness:.7,metalness:.15,envMapIntensity:.35}));
+function bGeo(w,h,d){const g=new THREE.BoxGeometry(w,h,d),uv=g.attributes.uv;for(let i=0;i<uv.count;i++){const f=i>>2;let u=uv.getX(i),v=uv.getY(i);if(f<2){u*=d/22;v*=h/22}else if(f<4){u=v=.02}else{u*=w/22;v*=h/22}uv.setXY(i,u,v)}return g}
+const beacons=[];
+for(let k=0;k<64;k++){const ang=(k/64)*TAU;if(ang>5.4&&ang<6.25)continue;
+ const rr=62+Math.random()*88,x=Math.cos(ang)*rr,z=Math.sin(ang)*rr;
+ if(Math.hypot(x-150,z+70)<95||Math.abs(z+118)<13)continue;
+ const w=12+Math.random()*16,d=12+Math.random()*16,h=14+Math.random()*76,m=cityM[k%4];
+ const b=new THREE.Mesh(bGeo(w,h,d),m);b.position.set(x,h/2+.1,z);b.rotation.y=Math.random()*TAU;scene.add(b);
+ if(h>70){const an=new THREE.Mesh(new THREE.CylinderGeometry(.15,.2,10,6),new THREE.MeshStandardMaterial({color:'#0b0b0d',roughness:.5,metalness:.4}));an.position.set(x,h+5,z);scene.add(an);
+  const bc=new THREE.Sprite(halo(0xff3040,.9));bc.position.set(x,h+10.2,z);bc.scale.setScalar(2.4);scene.add(bc);beacons.push(bc)}}
+// jalan tol + lampu mobil lewat
+const hTex=cv(256,512,(g,w,h)=>{g.fillStyle='#191c26';g.fillRect(0,0,w,h);for(let i=0;i<3000;i++){const v=20+Math.random()*25|0;g.fillStyle=`rgba(${v},${v},${v+6},.5)`;g.fillRect(Math.random()*w,Math.random()*h,2,2)}g.fillStyle='#c8ccd4';for(let y=0;y<h;y+=64)g.fillRect(w/2-2,y,4,34)},1);hTex.repeat.set(1,6);
+const hwy=new THREE.Mesh(new THREE.PlaneGeometry(13,340).rotateX(-Math.PI/2).rotateY(Math.PI/2),new THREE.MeshStandardMaterial({map:hTex,roughness:.7}));
+hwy.position.set(0,.045,-118);scene.add(hwy);
+const cars1=[],cars2=[];
+for(let i=0;i<5;i++){const s=new THREE.Sprite(halo(0xfff6d8,.95));s.scale.setScalar(2.6);scene.add(s);cars1.push(s);
+ const r=new THREE.Sprite(halo(0xff3040,.95));r.scale.setScalar(2.2);scene.add(r);cars2.push(r)}
+// tiang lampu
+const poleM=new THREE.MeshStandardMaterial({color:'#0b0b0d',roughness:.5,metalness:.4});
+function pole(x,z){const g=new THREE.Group();g.position.set(x,0,z);
+ const p=new THREE.Mesh(new THREE.CylinderGeometry(.09,.13,6.5,8),poleM);p.position.y=3.25;p.castShadow=true;g.add(p);
+ const arm=new THREE.Mesh(new THREE.BoxGeometry(1.4,.08,.08),poleM);arm.position.set(.6,6.4,0);g.add(arm);
+ const head=new THREE.Mesh(new THREE.BoxGeometry(.6,.12,.3),new THREE.MeshStandardMaterial({color:'#666',emissive:0xffd9a0,emissiveIntensity:2}));head.position.set(1.2,6.32,0);g.add(head);
+ const h=new THREE.Sprite(halo(0xffc070,.4));h.position.set(1.2,6.2,0);h.scale.setScalar(4);g.add(h);
+ const pool=new THREE.Mesh(new THREE.CircleGeometry(4,24).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({map:smTex,color:0xffc070,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,opacity:.12}));
+ pool.position.set(1.2,.07,0);g.add(pool);scene.add(g)}
+pole(-10,14);pole(12,10);pole(-6,-16);pole(18,-8);
+// pantai: pohon kelapa + payung
+const palmT=new THREE.MeshStandardMaterial({color:'#4a3826',roughness:1}),palmL=new THREE.MeshStandardMaterial({color:'#2e6b34',roughness:.9,side:THREE.DoubleSide});
+const palms=[];
+function mkPalm(x,z,s){const g=new THREE.Group();g.position.set(x,.06,z);
+ const tr=new THREE.Mesh(new THREE.CylinderGeometry(.12*s,.2*s,5*s,6),palmT);tr.position.y=2.5*s;tr.castShadow=true;g.add(tr);
+ for(let f=0;f<7;f++){const fr=new THREE.Mesh(new THREE.BoxGeometry(.4*s,.07*s,4.2*s).translate(0,0,2.1*s),palmL);
+  fr.position.y=5*s;fr.rotation.y=f*TAU/7+Math.random()*.4;fr.rotation.x=.45+Math.random()*.25;fr.castShadow=true;g.add(fr)}
+ g.userData.ph=Math.random()*6;scene.add(g);palms.push(g)}
+const sand2=[[150,-40,1.1],[190,-60,1.3],[160,-125,1],[210,-115,1.2],[225,-75,.9],[120,-95,1.15]].forEach(a=>mkPalm(a[0],a[1],a[2]));
+const umM=[0xef4444,0x38bdf8,0xfacc15].map(c=>new THREE.MeshStandardMaterial({color:c,roughness:.7,side:THREE.DoubleSide}));
+[[165,-55],[205,-130],[180,-35]].forEach((p,i)=>{const g=new THREE.Group();g.position.set(p[0],.06,p[1]);
+ const st2=new THREE.Mesh(new THREE.BoxGeometry(.06,2.4,.06),poleM);st2.position.y=1.2;g.add(st2);
+ const u=new THREE.Mesh(new THREE.ConeGeometry(1.6,.55,14),umM[i%3]);u.position.y=2.45;u.castShadow=true;g.add(u);scene.add(g)});
+// panggung neon
+const stage=new THREE.Group();scene.add(stage);
+const plat=new THREE.Mesh(new THREE.CylinderGeometry(4.7,5.1,.35,48),new THREE.MeshPhysicalMaterial({color:'#0c0e15',roughness:.22,metalness:.7,envMapIntensity:1.3}));
+plat.position.y=.175;plat.receiveShadow=true;stage.add(plat);
+const ring=new THREE.Mesh(new THREE.RingGeometry(5.05,5.5,72).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color:0xf97316,transparent:true,opacity:.4,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));
+ring.position.y=.4;stage.add(ring);
+const ring2=new THREE.Mesh(new THREE.RingGeometry(6.3,6.42,72).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color:0x22d3ee,transparent:true,opacity:.18,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));
+ring2.position.y=.4;stage.add(ring2);
+// MCLAREN SENNA (model sama persis dengan yang di game)
+const bxc={},bx=(w,h,d)=>{const k=w+'_'+h+'_'+d;return bxc[k]||(bxc[k]=new THREE.BoxGeometry(w,h,d))};
+const cyl=(r,l,s=14)=>new THREE.CylinderGeometry(r,r,l,s).rotateX(Math.PI/2);
+const prof=(pts,d,b)=>{const s=new THREE.Shape();pts.forEach((p,i)=>i?s.lineTo(p[0],p[1]):s.moveTo(p[0],p[1]));const g=new THREE.ExtrudeGeometry(s,{depth:d,bevelEnabled:true,bevelThickness:b,bevelSize:b,bevelSegments:3,curveSegments:4});g.translate(0,0,-d/2);g.rotateY(-Math.PI/2);return g};
+const tgc={},tireGeo=(r,w)=>{const k='t'+r+'_'+w;return tgc[k]||(tgc[k]=new THREE.CylinderGeometry(r,r,w,24).rotateZ(Math.PI/2))};
+const rimGeo=(r,w)=>{const k='r'+r+'_'+w;return tgc[k]||(tgc[k]=new THREE.CylinderGeometry(r,r,w,14).rotateZ(Math.PI/2))};
+const glassM=new THREE.MeshPhysicalMaterial({color:'#0a1018',metalness:.6,roughness:.05,envMapIntensity:1.4}),
+ darkM=new THREE.MeshStandardMaterial({color:'#0b0b0d',roughness:.5,metalness:.4}),
+ tireM=new THREE.MeshStandardMaterial({color:'#151515',roughness:.95}),
+ rimM=new THREE.MeshStandardMaterial({color:'#c9ccd1',metalness:1,roughness:.25}),
+ chromeM=new THREE.MeshStandardMaterial({color:'#e2e6ec',metalness:1,roughness:.12});
+function mkWheels(car,add,list,ww){const out=[];
+ list.forEach(([z,r,w,fr])=>[-1,1].forEach(sx=>{const wg=new THREE.Group(),sp=new THREE.Group();wg.position.set(sx*ww,r,z);wg.add(sp);car.add(wg);
+  add(tireGeo(r,w),tireM,0,0,0,sp);add(rimGeo(r*.68,w+.02),rimM,0,0,0,sp);
+  for(let k=0;k<5;k++){const o=add(bx(.03,r*1.15,.06),rimM,sx*(w/2+.005),0,0,sp);o.rotation.x=k*TAU/5}
+  out.push({w:wg,spn:sp,front:!!fr,r})}));return out}
+function mkSenna(){const car=new THREE.Group(),body=new THREE.Group();car.add(body);
+ const paint=new THREE.MeshPhysicalMaterial({color:'#ea580c',metalness:.35,roughness:.26,clearcoat:1,clearcoatRoughness:.03,envMapIntensity:1});
+ const head=new THREE.MeshStandardMaterial({color:'#fff',emissive:0xfff2d0,emissiveIntensity:2.2});
+ const tail=new THREE.MeshStandardMaterial({color:'#500',emissive:0xff1010,emissiveIntensity:1.8});
+ const add=(g,m,x,y,z,p=body)=>{const o=new THREE.Mesh(g,m);o.position.set(x,y,z);o.castShadow=true;p.add(o);return o};
+ add(prof([[-2.25,.3],[2.2,.3],[2.3,.42],[2.12,.55],[1.2,.68],[.6,.82],[.2,.92],[-.8,.95],[-1.6,1],[-2.1,.9],[-2.25,.7]],1.95,.1),paint,0,0,0);
+ add(prof([[-1,.93],[.45,.88],[-.05,1.25],[-.9,1.3],[-1.2,1]],1.4,.05),glassM,0,0,0);add(bx(1,.05,.8),paint,0,1.3,-.5);
+ add(bx(2,.06,.6),paint,0,1.32,-2.2);
+ [-1,1].forEach(s=>{add(bx(.06,.45,.5),paint,s*.75,1.1,-2.15);add(bx(.05,.22,.62),darkM,s*1,1.38,-2.2);
+  add(bx(.05,.3,.95),darkM,s*1,.62,-.3);add(bx(.6,.07,.12),head,s*.62,.6,2.18).rotation.z=-s*.25;
+  const h1=new THREE.Sprite(halo(0xfff2d0,.55));h1.position.set(s*.62,.65,2.55);h1.scale.setScalar(1.4);car.add(h1);
+  add(bx(.5,.06,.08),tail,s*.5,.85,-2.28);const h2=new THREE.Sprite(halo(0xff2020,.4));h2.position.set(s*.5,.85,-2.6);h2.scale.setScalar(1.4);car.add(h2);
+  add(cyl(.07,.3),chromeM,s*.25,.5,-2.3)});
+ add(bx(2.1,.05,.45),darkM,0,.27,2.3);add(bx(1,.1,.06),darkM,0,.42,2.33);add(bx(1.6,.14,.55),darkM,0,.36,-2.2);
+ const wheels=mkWheels(car,add,[[1.4,.34,.3,1],[-1.35,.36,.36,0]],.95);
+ const ug=new THREE.Mesh(new THREE.PlaneGeometry(1,1).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({map:smTex,color:0x22d3ee,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,opacity:.45}));
+ ug.scale.set(4,1,6);ug.position.y=-.28;car.add(ug);
+ return{car,body,wheels,ug}}
+const SEN=mkSenna();SEN.car.scale.setScalar(1.12);SEN.car.position.y=.355;stage.add(SEN.car);
+key.target.position.set(0,.8,0);rim.target.position.set(0,.9,0);moonL.target.position.set(0,0,0);
+// tombol UI
+const play=$('play'),setB=$('set'),toast=$('toast');let tt=0;
+const go=()=>{if(play.disabled)return;play.innerHTML='MEMUAT…';play.disabled=true;setTimeout(()=>location.href='game.html',300)};
+play.onclick=go;
+addEventListener('keydown',e=>{if(e.key==='Enter')go()});
+setB.onclick=()=>{toast.textContent='SETTINGS — SEGERA HADIR';toast.classList.add('on');setB.classList.remove('shk');void setB.offsetWidth;setB.classList.add('shk');clearTimeout(tt);tt=setTimeout(()=>toast.classList.remove('on'),1800)};
+try{const s=JSON.parse(localStorage.getItem('owd_v6')||'null');if(s){const f=n=>'$'+Math.abs(Math.round(n)).toLocaleString('en-US');
+ const mon=s.money!=null?((s.money<0?'HUTANG ':'SALDO ')+f(s.money)+'  ·  '):'';
+ $('saldo').textContent=mon+((s.owned&&s.owned.length)||1)+' MOBIL DI GARASI'}}catch(e){}
+// animasi
+let last=performance.now(),t=0;
+function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-last)/1000);last=now;t+=dt;
+ const a=t*.075+1.2,r=9.6+Math.sin(t*.11)*1.1;
+ camera.position.set(Math.cos(a)*r,3.1+Math.sin(t*.19)*.55,Math.sin(a)*r);
+ camera.lookAt(-2.1,1.05,0);
+ SEN.car.rotation.y=t*.24;
+ ring.material.opacity=.32+.18*Math.sin(t*2.6);ring2.material.opacity=.12+.06*Math.sin(t*1.8);
+ SEN.ug.material.opacity=.25+.12*Math.sin(t*2.6);cyanP.intensity=.9+.4*Math.sin(t*2.6);
+ palms.forEach(p=>p.rotation.z=Math.sin(t*.9+p.userData.ph)*.035);
+ wTex.offset.x+=dt*.008;wTex.offset.y+=dt*.004;
+ cars1.forEach((s,i)=>s.position.set(((t*38+i*67)%340)-170,.5,-115));
+ cars2.forEach((s,i)=>s.position.set(170-((t*44+i*73)%340),.5,-121));
+ beacons.forEach((b,i)=>b.material.opacity=Math.sin(t*2+i)>.4?.7:.25);
+ sky.position.copy(camera.position);
+ rd.render(scene,camera)}
+function resize(){rd.setSize(innerWidth,innerHeight,false);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix()}
+addEventListener('resize',resize);resize();
+frame(performance.now());
+$('boot').remove();
+}
+</script>
+</body>
+</html>
