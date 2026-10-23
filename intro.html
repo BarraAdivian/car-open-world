@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>StreetBound — Todoki Studio</title>
+<!-- ================================================================
+  INTRO.HTML — STREETBOUND by TODOKI STUDIO
+  Alur : Intro studio "todoki" (bg #1E1E1E, fade in-out pelan kaya
+         studio lainnya, SELALU main dari awal tiap refresh)
+         -> todoki hilang dulu, bg MASIH HITAM dulu sebentar
+         -> baru deh bg-nya fade hilang -> Title screen (Senna kiri,
+            F1 kanan, [PRESS ENTER])
+         -> Enter/klik -> home.html
+  LOGO : taruh file SVG lu di  assets/logo.svg  (sefolder sama dgn
+         file ini). Kalau nama/path beda, ubah src #studioImg bawah.
+         Kalau file belum ada, otomatis tampil wordmark "todoki."
+================================================================ -->
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700&family=Rajdhani:wght@500;600;700&family=Yellowtail&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;height:100%;overflow:hidden;color:#fff;user-select:none;
+ font-family:'Rajdhani','Segoe UI',system-ui,sans-serif;
+ background:radial-gradient(ellipse at 50% 78%,#181028 0%,#0a0716 48%,#04060f 100%)}
+#c{position:fixed;inset:0;display:block}
+
+/* ---------- FASE 1 : INTRO STUDIO ---------- */
+#studio{position:fixed;inset:0;z-index:60;background:#1E1E1E;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:opacity 1.25s ease}
+#studio.out{opacity:0;pointer-events:none}
+#studio::after{content:'';position:absolute;inset:0;pointer-events:none;
+ background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(255,255,255,.014) 3px 4px),
+ radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.35))}
+#logoWrap{display:flex;flex-direction:column;align-items:center;gap:16px;
+ opacity:0;transform:scale(.93);transition:opacity 1.5s ease,transform 1.5s ease}
+#logoWrap.on{opacity:1;transform:scale(1)}
+/* todoki fade-out duluan (1.1s) — bg #studio TETAP SOLID HITAM dulu,
+   baru bg-nya fade hilang belakangan (class .out dari JS) */
+#studio.logoout #logoWrap{opacity:0;transform:scale(1.05);transition-duration:1.1s,1.1s}
+/* ▼★ UDAH DIBESARIN. Mau atur sendiri? ubah angkanya: 560px/72vw = LEBAR maks logo, 44vh = TINGGI maks */
+#studioImg{max-width:min(560px,72vw);max-height:44vh;filter:drop-shadow(0 0 28px rgba(255,255,255,.13))}
+#wordmark{display:none;font-family:'Baloo 2','Rajdhani',sans-serif;font-weight:700;line-height:1;
+ font-size:clamp(72px,12vw,120px);color:#f5f5f2;letter-spacing:.5px;text-shadow:0 0 34px rgba(255,255,255,.12)} /* ★ teks "todoki." — besarin di sini: clamp(72px,12vw,120px) */
+#wordmark b{color:#ff9f2e;text-shadow:0 0 24px rgba(255,159,46,.7)}
+#studioSub{display:none;font-weight:700;font-size:15px;letter-spacing:12px;text-indent:12px;color:#8a8a8a}
+#skipHint{position:absolute;bottom:26px;left:0;right:0;text-align:center;font-weight:600;
+ font-size:11px;letter-spacing:3.5px;color:#6a6a6a;animation:blink 2.4s infinite}
+@keyframes blink{0%,100%{opacity:.4}50%{opacity:.95}}
+
+/* ---------- FASE 2 : TITLE SCREEN ---------- */
+#vig{position:fixed;inset:0;z-index:2;pointer-events:none;
+ background:radial-gradient(ellipse at 50% 40%,transparent 40%,rgba(0,0,0,.68) 100%)}
+#ui{position:fixed;inset:0;z-index:5;display:flex;flex-direction:column;align-items:center;text-align:center;pointer-events:none}
+#ui::before{content:'';position:absolute;top:-6vh;left:50%;transform:translateX(-50%);
+ width:min(980px,96vw);height:52vh;pointer-events:none;
+ background:radial-gradient(ellipse at 50% 38%,rgba(3,5,12,.74),transparent 70%)}
+#ui>*{opacity:0;transform:translateY(18px);transition:opacity .8s ease,transform .8s ease}
+body.revealed #ui>*{opacity:1;transform:none}
+body.revealed #kicker{transition-delay:.15s}
+body.revealed #title{transition-delay:.35s}
+body.revealed #tagline{transition-delay:.6s}
+body.revealed #enterWrap{transition-delay:.85s}
+/* ★ teks "TODOKI STUDIO MEMPERSEMBAHKAN" di title — besarin di sini: ubah clamp(14px,2vw,21px) */
+#kicker{margin-top:6.5vh;font-weight:700;font-size:clamp(14px,2vw,21px);letter-spacing:8px;text-indent:8px;
+ color:#7dd3fc;text-shadow:0 0 16px rgba(56,189,248,.45),0 2px 10px rgba(0,0,0,.95)}
+#title{margin:4px 0 0;font-weight:400;font-family:'Yellowtail',cursive;font-size:min(15vw,122px);line-height:1.08}
+#title span{display:inline-block;transform:rotate(-2deg);
+ padding:.24em .14em .28em;margin:-.24em -.14em -.28em; /* padding nutup box gradient biar ascender 'd' gak kepotong */
+ background:linear-gradient(93deg,#fff 8%,#ffe0b0 38%,#ff9f2e 62%,#f43f5e 96%);
+ -webkit-background-clip:text;background-clip:text;color:transparent;
+ filter:drop-shadow(0 0 22px rgba(249,115,22,.35)) drop-shadow(0 8px 18px rgba(0,0,0,.8))}
+#tagline{font-weight:600;font-size:clamp(11px,1.6vw,15px);letter-spacing:6px;text-indent:6px;color:#cbd5e1;text-shadow:0 2px 8px #000}
+#tagline b{color:#ff9f2e}
+#enterWrap{margin-top:auto;margin-bottom:13vh;display:flex;flex-direction:column;align-items:center;gap:12px}
+#enter{pointer-events:auto;background:transparent;border:none;cursor:pointer;font-family:inherit;
+ font-weight:700;font-size:clamp(18px,2.6vw,26px);letter-spacing:7px;text-indent:7px;color:#ffb454;
+ padding:10px 24px;animation:epulse 1.7s ease-in-out infinite;transition:transform .2s}
+#enter:hover{color:#fff;transform:scale(1.06)}
+#enter:active{transform:scale(.95)}
+#enter:focus-visible{outline:2px solid #ff9f2e;outline-offset:6px;border-radius:6px}
+@keyframes epulse{0%,100%{opacity:.68;text-shadow:0 0 10px rgba(255,159,46,.35)}50%{opacity:1;text-shadow:0 0 26px rgba(255,159,46,.85)}}
+#hint{font-weight:600;font-size:11px;letter-spacing:3px;color:#64748b}
+.carlbl{position:fixed;bottom:8.5vh;z-index:5;font-weight:700;font-size:12px;letter-spacing:5px;text-indent:5px;
+ color:#94a3b8;text-shadow:0 1px 6px #000;pointer-events:none;opacity:0;transition:opacity 1s ease 1.15s}
+body.revealed .carlbl{opacity:1}
+.carlbl::after{content:'';display:block;width:46px;height:3px;margin:7px auto 0;border-radius:2px;
+ background:#f97316;box-shadow:0 0 12px rgba(249,115,22,.85)}
+#lblL{left:11%}#lblR{right:11%}
+#lblR::after{background:#22d3ee;box-shadow:0 0 12px rgba(34,211,238,.85)}
+#foot{position:fixed;bottom:12px;left:0;right:0;z-index:5;text-align:center;font-weight:600;
+ font-size:10.5px;letter-spacing:2px;color:#475569;opacity:0;transition:opacity 1s ease 1.35s}
+body.revealed #foot{opacity:1}
+#bye{position:fixed;inset:0;z-index:80;background:#000;opacity:0;pointer-events:none;transition:opacity .45s ease}
+#bye.on{opacity:1}
+@media (max-width:760px){.carlbl{display:none}#kicker{letter-spacing:5px;text-indent:5px}}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="vig"></div>
+
+<div id="ui">
+ <div id="kicker">TODOKI STUDIO MEMPERSEMBAHKAN</div>
+ <h1 id="title"><span>StreetBound</span></h1>
+ <div id="tagline">KOTA MALAM <b>·</b> OPEN WORLD <b>·</b> RACING</div>
+ <div id="enterWrap">
+  <button id="enter">[ PRESS ENTER ]</button>
+  <div id="hint">TEKAN ENTER DI KEYBOARD ATAU KLIK TOMBOLNYA</div>
+ </div>
+</div>
+<div class="carlbl" id="lblL">MCLAREN SENNA</div>
+<div class="carlbl" id="lblR">F1 · FORMULA ONE</div>
+<div id="foot">© 2025 TODOKI STUDIO — STREETBOUND v1.0</div>
+<div id="bye"></div>
+
+<div id="studio">
+ <div id="logoWrap">
+  <!-- ▼ LOGO SVG LU — taruh di assets/logo.svg (ubah src kalau path beda) -->
+  <img id="studioImg" src="assets/logo.svg" alt="todoki" onerror="this.style.display='none';document.getElementById('wordmark').style.display='block';document.getElementById('studioSub').style.display='block'">
+  <div id="wordmark">todoki<b>.</b></div>
+  <div id="studioSub">STUDIO</div>
+ </div>
+ <div id="skipHint">KLIK ATAU TEKAN ENTER UNTUK LEWATI</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const $=id=>document.getElementById(id),TAU=Math.PI*2;
+
+/* ================= TIMELINE (jalan walau 3D gagal load) ================= */
+let phase='studio',navigating=false,revealT0=0;
+const studioEl=$('studio');
+/* TIMELINE: 0.4s todoki muncul(1.5s) -> 3.4s todoki fade-out(1.1s)
+   -> bg tetap HITAM dulu (hold ±0.8s) -> 5.15s title mulai (podium naik)
+   -> 5.25s BARU bg hitam fade hilang (1.25s) -> title screen penuh */
+const T1=setTimeout(()=>$('logoWrap').classList.add('on'),400),
+      T2=setTimeout(()=>studioEl.classList.add('logoout'),3400),
+      T3=setTimeout(reveal,5150),
+      T4=setTimeout(()=>studioEl.classList.add('out'),5250);
+function reveal(){if(phase!=='studio')return;phase='title';
+ document.body.classList.add('revealed');revealT0=performance.now();
+ setTimeout(()=>studioEl.style.display='none',1350)}
+function skip(){if(phase!=='studio')return;clearTimeout(T1);clearTimeout(T2);clearTimeout(T3);clearTimeout(T4);
+ studioEl.classList.add('logoout');studioEl.classList.add('out');reveal()}
+function goMenu(){if(navigating||phase!=='title')return;navigating=true;$('bye').classList.add('on');
+ setTimeout(()=>location.href='home.html',470)}
+studioEl.onclick=skip;
+ $('enter').onclick=goMenu;
+addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();phase==='studio'?skip():goMenu()}});
+
+if(window.THREE){(function(){
+/* ================= 3D : SHOWROOM MALAM ================= */
+const rd=new THREE.WebGLRenderer({canvas:$('c'),antialias:true});
+rd.setPixelRatio(Math.min(devicePixelRatio,2));rd.outputEncoding=THREE.sRGBEncoding;
+rd.toneMapping=THREE.ACESFilmicToneMapping;rd.toneMappingExposure=0.9;
+rd.shadowMap.enabled=true;rd.shadowMap.type=THREE.PCFSoftShadowMap;
+const scene=new THREE.Scene();scene.fog=new THREE.Fog(0x05070f,45,330);
+const camera=new THREE.PerspectiveCamera(50,1,.3,1500);
+const pm=new THREE.PMREMGenerator(rd);
+const cv=(w,h,f,rep)=>{const c=document.createElement('canvas');c.width=w;c.height=h;f(c.getContext('2d'),w,h);const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.anisotropy=8;if(rep)t.wrapS=t.wrapT=THREE.RepeatWrapping;return t};
+// environment map (pantulan cat)
+{const c=document.createElement('canvas');c.width=512;c.height=256;const g=c.getContext('2d');
+ const gr=g.createLinearGradient(0,0,0,256);gr.addColorStop(0,'#04081a');gr.addColorStop(.48,'#15264f');gr.addColorStop(.54,'#33456f');gr.addColorStop(.6,'#141a2c');gr.addColorStop(1,'#090b12');g.fillStyle=gr;g.fillRect(0,0,512,256);
+ for(let i=0;i<70;i++){const x=Math.random()*512,y=132+Math.random()*26,rr=6+Math.random()*30;const rg=g.createRadialGradient(x,y,0,x,y,rr),cl=Math.random()<.55?'255,150,60':'80,190,255';rg.addColorStop(0,`rgba(${cl},.22)`);rg.addColorStop(1,`rgba(${cl},0)`);g.fillStyle=rg;g.fillRect(x-rr,y-rr,rr*2,rr*2)}
+ const tx=new THREE.CanvasTexture(c);tx.encoding=THREE.sRGBEncoding;const e=pm.fromEquirectangular(tx);tx.dispose();scene.environment=e.texture}
+// langit + bintang + bulan
+const sky=new THREE.Mesh(new THREE.SphereGeometry(700,32,16),new THREE.ShaderMaterial({side:THREE.BackSide,depthWrite:false,fog:false,
+ vertexShader:'varying vec3 v;void main(){v=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+ fragmentShader:'varying vec3 v;void main(){float h=clamp(v.y,-.1,1.);vec3 c=mix(vec3(.05,.09,.22),vec3(.008,.016,.05),pow(max(h,0.),.45));c=mix(vec3(.35,.16,.09),c,clamp(h/.09,0.,1.));gl_FragColor=vec4(c,1.);}'}));
+scene.add(sky);
+const sp0=[];for(let i=0;i<700;i++){const u=Math.random()*TAU,v=Math.random()*.9+.08,r=Math.sqrt(1-v*v);sp0.push(Math.cos(u)*r*650,v*650,Math.sin(u)*r*650)}
+scene.add(new THREE.Points(new THREE.BufferGeometry().setAttribute('position',new THREE.Float32BufferAttribute(sp0,3)),new THREE.PointsMaterial({color:0xffffff,size:1.6,sizeAttenuation:false,fog:false,depthWrite:false})));
+const smTex=cv(64,64,g=>{const gr=g.createRadialGradient(32,32,0,32,32,32);gr.addColorStop(0,'rgba(255,255,255,.95)');gr.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gr;g.fillRect(0,0,64,64)});
+const halo=(col,op)=>new THREE.SpriteMaterial({map:smTex,color:col,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,opacity:op});
+const moon=new THREE.Sprite(halo(0xdfe9ff,.95));moon.position.set(-320,330,-430);moon.scale.setScalar(150);scene.add(moon);
+// cahaya
+scene.add(new THREE.HemisphereLight(0x35508a,0x0a0c14,.34));
+const moonL=new THREE.DirectionalLight(0xbdd2ff,.5);moonL.position.set(-120,170,-90);moonL.castShadow=true;moonL.shadow.mapSize.set(1024,1024);
+Object.assign(moonL.shadow.camera,{left:-16,right:16,top:16,bottom:-16,near:1,far:450});moonL.shadow.camera.updateProjectionMatrix();moonL.shadow.bias=-.0004;
+scene.add(moonL,moonL.target);
+function spot(x){const s=new THREE.SpotLight(0xffffff,.72,70,.5,.55,1.2);s.position.set(x,9,4.5);
+ s.castShadow=true;s.shadow.mapSize.set(1024,1024);s.shadow.bias=-.0004;scene.add(s,s.target);s.target.position.set(x,.6,0);return s}
+const spL=spot(-3.1),spR=spot(3.1);
+const rim=new THREE.SpotLight(0x3f8fff,2.1,80,.6,.7,1);rim.position.set(0,7.5,-10);scene.add(rim,rim.target);rim.target.position.set(0,.9,0);
+const fill=new THREE.PointLight(0x8899bb,.3,30,1);fill.position.set(0,2.2,13);scene.add(fill);
+// plaza aspal
+const gTex=cv(512,512,(g,w,h)=>{g.fillStyle='#0d101a';g.fillRect(0,0,w,h);for(let i=0;i<9000;i++){const v=12+Math.random()*20|0;g.fillStyle=`rgba(${v},${v+4},${v+12},.5)`;g.fillRect(Math.random()*w,Math.random()*h,2,2)}},1);gTex.repeat.set(26,26);
+const plaza=new THREE.Mesh(new THREE.CircleGeometry(150,56).rotateX(-Math.PI/2),new THREE.MeshStandardMaterial({map:gTex,color:'#2a303e',roughness:.55,metalness:.12,envMapIntensity:.25}));
+plaza.receiveShadow=true;scene.add(plaza);
+// gedung kota + jendela nyala
+const winTex=cv(256,256,g=>{g.fillStyle='#232833';g.fillRect(0,0,256,256);for(let y=0;y<4;y++)for(let x=0;x<4;x++){g.fillStyle='#10161f';g.fillRect(x*64+10,y*64+12,44,38);g.fillStyle='#26405e';g.fillRect(x*64+10,y*64+12,44,13)}},1);
+const litTex=cv(256,256,g=>{g.fillStyle='#000';g.fillRect(0,0,256,256);const c=['#ffd27a','#ffe9b0','#bfe3ff','#ffc060'];for(let y=0;y<4;y++)for(let x=0;x<4;x++)if(Math.random()<.4){g.fillStyle=c[Math.random()*4|0];g.fillRect(x*64+10,y*64+12,44,38)}},1);
+const cityM=['#2a3140','#343b4d','#262c3a','#3a4254'].map(c=>new THREE.MeshStandardMaterial({color:c,map:winTex,emissiveMap:litTex,emissive:0xffffff,emissiveIntensity:1.05,roughness:.7,metalness:.15,envMapIntensity:.35}));
+function bGeo(w,h,d){const g=new THREE.BoxGeometry(w,h,d),uv=g.attributes.uv;for(let i=0;i<uv.count;i++){const f=i>>2;let u=uv.getX(i),v=uv.getY(i);if(f<2){u*=d/22;v*=h/22}else if(f<4){u=v=.02}else{u*=w/22;v*=h/22}uv.setXY(i,u,v)}return g}
+const beacons=[];
+for(let k=0;k<56;k++){const ang=(k/56)*TAU;if(ang>5.4&&ang<6.25)continue;
+ const rr=78+Math.random()*90,x=Math.cos(ang)*rr,z=Math.sin(ang)*rr;
+ if(Math.abs(z+118)<13)continue;
+ const w=12+Math.random()*16,d=12+Math.random()*16,h=14+Math.random()*62,m=cityM[k%4];
+ const b=new THREE.Mesh(bGeo(w,h,d),m);b.position.set(x,h/2+.1,z);b.rotation.y=Math.random()*TAU;scene.add(b);
+ if(h>58){const an=new THREE.Mesh(new THREE.CylinderGeometry(.15,.2,10,6),new THREE.MeshStandardMaterial({color:'#0b0b0d',roughness:.5,metalness:.4}));an.position.set(x,h+5,z);scene.add(an);
+  const bc=new THREE.Sprite(halo(0xff3040,.9));bc.position.set(x,h+10.2,z);bc.scale.setScalar(2.4);scene.add(bc);beacons.push(bc)}}
+// jalan tol + lampu mobil lewat
+const hTex=cv(256,512,(g,w,h)=>{g.fillStyle='#191c26';g.fillRect(0,0,w,h);for(let i=0;i<3000;i++){const v=20+Math.random()*25|0;g.fillStyle=`rgba(${v},${v},${v+6},.5)`;g.fillRect(Math.random()*w,Math.random()*h,2,2)}g.fillStyle='#c8ccd4';for(let y=0;y<h;y+=64)g.fillRect(w/2-2,y,4,34)},1);hTex.repeat.set(1,6);
+const hwy=new THREE.Mesh(new THREE.PlaneGeometry(13,340).rotateX(-Math.PI/2).rotateY(Math.PI/2),new THREE.MeshStandardMaterial({map:hTex,roughness:.7}));
+hwy.position.set(0,.045,-118);scene.add(hwy);
+const cars1=[],cars2=[];
+for(let i=0;i<5;i++){const s=new THREE.Sprite(halo(0xfff6d8,.95));s.scale.setScalar(2.6);scene.add(s);cars1.push(s);
+ const r=new THREE.Sprite(halo(0xff3040,.95));r.scale.setScalar(2.2);scene.add(r);cars2.push(r)}
+// debu melayang
+const pN=150,pPos=new Float32Array(pN*3),pVel=new Float32Array(pN);
+for(let i=0;i<pN;i++){pPos[i*3]=(Math.random()*2-1)*15;pPos[i*3+1]=Math.random()*7;pPos[i*3+2]=(Math.random()*2-1)*15;pVel[i]=.08+Math.random()*.22}
+const pGeo=new THREE.BufferGeometry();pGeo.setAttribute('position',new THREE.BufferAttribute(pPos,3));
+scene.add(new THREE.Points(pGeo,new THREE.PointsMaterial({map:smTex,color:0xffc890,size:.14,transparent:true,opacity:.5,blending:THREE.AdditiveBlending,depthWrite:false})));
+
+/* ---------- helper model (identik dgn game) ---------- */
+const M=(c,o)=>new THREE.MeshStandardMaterial(Object.assign({color:c},o||{}));
+const bxc={},bx=(w,h,d)=>{const k=w+'_'+h+'_'+d;return bxc[k]||(bxc[k]=new THREE.BoxGeometry(w,h,d))};
+const cyl=(r,l,s=14)=>new THREE.CylinderGeometry(r,r,l,s).rotateX(Math.PI/2);
+const prof=(pts,d,b)=>{const s=new THREE.Shape();pts.forEach((p,i)=>i?s.lineTo(p[0],p[1]):s.moveTo(p[0],p[1]));const g=new THREE.ExtrudeGeometry(s,{depth:d,bevelEnabled:true,bevelThickness:b,bevelSize:b,bevelSegments:3,curveSegments:4});g.translate(0,0,-d/2);g.rotateY(-Math.PI/2);return g};
+const tgc={},tireGeo=(r,w)=>{const k='t'+r+'_'+w;return tgc[k]||(tgc[k]=new THREE.CylinderGeometry(r,r,w,24).rotateZ(Math.PI/2))};
+const rimGeo=(r,w)=>{const k='r'+r+'_'+w;return tgc[k]||(tgc[k]=new THREE.CylinderGeometry(r,r,w,14).rotateZ(Math.PI/2))};
+const spokeGeo=r=>{const k='s'+r;return tgc[k]||(tgc[k]=new THREE.BoxGeometry(.03,r*1.15,.06))};
+const glassM=new THREE.MeshPhysicalMaterial({color:'#0a1018',metalness:.6,roughness:.05,envMapIntensity:1.4}),
+ darkM=M('#0b0b0d',{roughness:.5,metalness:.4}),
+ tireM=M('#151515',{roughness:.95}),rimM=M('#c9ccd1',{metalness:1,roughness:.25}),
+ chromeM=M('#e2e6ec',{metalness:1,roughness:.12});
+const haloH=halo(0xfff2d0,.32);
+function haloTo(parent,mat,x,y,z,s){const sp=new THREE.Sprite(mat);sp.position.set(x,y,z);sp.scale.setScalar(s);parent.add(sp);return sp}
+function mkWheels(car,add,list,ww,spk){const out=[];
+ list.forEach(([z,r,w,fr])=>[-1,1].forEach(sx=>{const wg=new THREE.Group(),sp=new THREE.Group();wg.position.set(sx*ww,r,z);wg.add(sp);car.add(wg);
+  add(tireGeo(r,w),tireM,0,0,0,sp);add(rimGeo(r*.68,w+.02),spk?darkM:rimM,0,0,0,sp);
+  if(spk)for(let k=0;k<5;k++){const o=add(spokeGeo(r),spk,sx*(w/2+.005),0,0,sp);o.rotation.x=k*TAU/5}
+  out.push({w:wg,spn:sp,front:!!fr,r})}));return out}
+function pBase(col,rough){const car=new THREE.Group(),body=new THREE.Group();car.add(body);
+ const paint=new THREE.MeshPhysicalMaterial({color:col,metalness:.2,roughness:rough,clearcoat:.55,clearcoatRoughness:.14,envMapIntensity:.7});
+ const head=M('#fff',{emissive:0xfff2d0,emissiveIntensity:3.5}),tail=M('#600',{emissive:0xff1010,emissiveIntensity:1.6}),tm=halo(0xff2020,.5);
+ const add=(g,m,x,y,z,p=body)=>{const o=new THREE.Mesh(g,m);o.position.set(x,y,z);o.castShadow=true;p.add(o);return o};
+ return{car,body,paint,head,tail,tm,add}}
+
+/* ---------- McLAREN SENNA (kiri) ---------- */
+function mkSenna(){const{car,body,paint,head,tail,tm,add}=pBase('#ea580c',.24);
+ add(prof([[-2.25,.3],[2.2,.3],[2.3,.42],[2.12,.55],[1.2,.68],[.6,.82],[.2,.92],[-.8,.95],[-1.6,1],[-2.1,.9],[-2.25,.7]],1.95,.1),paint,0,0,0);
+ add(prof([[-1,.93],[.45,.88],[-.05,1.25],[-.9,1.3],[-1.2,1]],1.4,.05),glassM,0,0,0);add(bx(1,.05,.8),paint,0,1.3,-.5);
+ add(bx(2,.06,.6),paint,0,1.32,-2.2);
+ [-1,1].forEach(s=>{add(bx(.06,.45,.5),paint,s*.75,1.1,-2.15);add(bx(.05,.22,.62),darkM,s*1,1.38,-2.2);
+  add(bx(.05,.3,.95),darkM,s*1,.62,-.3);add(bx(.6,.07,.12),head,s*.62,.6,2.18).rotation.z=-s*.25;haloTo(car,haloH,s*.62,.65,2.55,1.15);
+  add(bx(.5,.06,.08),tail,s*.5,.85,-2.28);haloTo(car,tm,s*.5,.85,-2.6,1.15);add(cyl(.07,.3),chromeM,s*.25,.5,-2.3)});
+ add(bx(2.1,.05,.45),darkM,0,.27,2.3);add(bx(1,.1,.06),darkM,0,.42,2.33);add(bx(1.6,.14,.55),darkM,0,.36,-2.2);
+ const wheels=mkWheels(car,add,[[1.4,.34,.3,1],[-1.35,.36,.36,0]],.95,rimM);
+ return{car,body,wheels,tail,tm,paint}}
+
+/* ---------- F1 (kanan) ---------- */
+const PG={fm:prof([[-1.4,.2],[1.7,.18],[2.6,.22],[2.65,.34],[1.8,.46],[.7,.55],[.35,.78],[-.2,.8],[-.5,.68],[-1.4,.62]],.55,.06)};
+function mkF1(){const{car,body,paint,tail,tm,add}=pBase('#0a1f5c',.25);
+ const red=M('#d4102a',{roughness:.4,metalness:.3}),yel=M('#ffcc00',{roughness:.4}),carb=M('#0c0c10',{roughness:.5,metalness:.4});
+ add(PG.fm,paint,0,0,0);add(bx(1.4,.05,3.9),carb,0,.12,0);
+ [-1,1].forEach(s=>{add(bx(.5,.38,1.9),paint,s*.52,.38,-.35);add(bx(.52,.05,1.9),red,s*.52,.58,-.35);add(bx(.02,.12,2.2),red,s*.37,.3,.5);
+  add(bx(.03,.2,.5),paint,s*.95,.2,2.4);add(bx(.03,.55,.55),paint,s*.5,.9,-2.28);add(bx(.03,.03,.7),carb,s*.22,1.08,.3);
+  add(bx(.55,.03,.03),carb,s*.6,.28,1.55);add(bx(.55,.03,.03),carb,s*.6,.28,-1.45)});
+ add(bx(.32,.36,.5),paint,0,.95,-.25);add(bx(.4,.3,1.6),paint,0,.62,-1.2);add(bx(.04,.45,1.4),paint,0,.9,-1.3);
+ add(new THREE.SphereGeometry(.16,14,10),yel,0,.9,.1);add(bx(.5,.03,.03),carb,0,1.08,.65);add(bx(.04,.3,.04),carb,0,.9,.7).rotation.x=.5;
+ add(bx(1.9,.04,.42),carb,0,.14,2.45);add(bx(1.9,.03,.3),red,0,.2,2.38);add(bx(.2,.1,.2),yel,0,.3,2.65);
+ add(bx(1,.04,.38),paint,0,1.12,-2.3);add(bx(1,.03,.3),red,0,.98,-2.25);add(bx(.05,.5,.1),carb,0,.7,-2.2);
+ add(bx(1.1,.1,.5),carb,0,.14,-2.1);add(bx(.12,.12,.04),tail,0,.45,-2.33);add(cyl(.05,.3),chromeM,0,.5,-2.4);
+ haloTo(car,tm,0,.5,-2.65,1.5);
+ const wheels=mkWheels(car,add,[[1.55,.33,.38,1],[-1.45,.36,.5,0]],.92,rimM);
+ return{car,body,wheels,tail,tm,paint}}
+
+/* ---------- panggung neon x2 ---------- */
+function mkPodium(x){const g=new THREE.Group();g.position.x=x;
+ const plat=new THREE.Mesh(new THREE.CylinderGeometry(2.3,2.55,.35,48),new THREE.MeshPhysicalMaterial({color:'#0c0e15',roughness:.22,metalness:.7,envMapIntensity:1.3}));
+ plat.position.y=.175;plat.receiveShadow=true;g.add(plat);
+ const ring=new THREE.Mesh(new THREE.RingGeometry(2.65,2.95,72).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color:0xf97316,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));
+ ring.position.y=.42;g.add(ring);
+ const ring2=new THREE.Mesh(new THREE.RingGeometry(3.0,3.06,72).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color:0xf97316,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));
+ ring2.position.y=.42;g.add(ring2);
+ scene.add(g);return{g,ring,ring2}}
+const podL=mkPodium(-3.1),podR=mkPodium(3.1);
+const SEN=mkSenna();SEN.car.scale.setScalar(.88);SEN.car.position.y=.36;podL.g.add(SEN.car);
+const F1C=mkF1();F1C.car.scale.setScalar(.88);F1C.car.position.y=.36;podR.g.add(F1C.car);
+function ug(car,col){const u=new THREE.Mesh(new THREE.PlaneGeometry(1,1).rotateX(-Math.PI/2),
+ new THREE.MeshBasicMaterial({map:smTex,color:col,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,opacity:0}));
+ u.scale.set(4.2,1,5.5);u.position.y=.04;car.add(u);return u}
+const ugS=ug(SEN.car,0x22d3ee),ugF=ug(F1C.car,0xff3050);
+
+/* ---------- kamera + loop ---------- */
+let camZ=11.6,mx=0,my=0,cmx=0,cmy=0;
+addEventListener('pointermove',e=>{mx=(e.clientX/innerWidth-.5)*2;my=(e.clientY/innerHeight-.5)*2});
+function resize(){rd.setSize(innerWidth,innerHeight,false);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();
+ const a=camera.aspect;camZ=a<1?15.8:12.4;
+ /* jarak panggung: ANTARA 3.45 (dulu, keterlalu ke tepi) dan 2.6 (kemarin, panggungnya ke-tabrakan) */
+ const px=Math.min(3.1,Math.max(2.2,camZ*.4663*a*.27));
+ podL.g.position.x=-px;podR.g.position.x=px;
+ /* layar sempit -> panggung dirapatkan, mobil ikut dikecilin biar gak saling senggol */
+ const sc=px<2.45?.76:.88;SEN.car.scale.setScalar(sc);F1C.car.scale.setScalar(sc);
+ spL.position.x=-px;spR.position.x=px;spL.target.position.set(-px,.6,0);spR.target.position.set(px,.6,0)}
+addEventListener('resize',resize);resize();
+let last=performance.now(),t=0;
+function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-last)/1000);last=now;t+=dt;
+ const e=phase==='studio'?0:Math.min(1,(now-revealT0)/1400),ee=1-Math.pow(1-e,3),rise=-4*(1-ee);
+ podL.g.position.y=rise;podR.g.position.y=rise;
+ const rp=.34+.16*Math.sin(t*2.6),rp2=.13+.06*Math.sin(t*1.9);
+ podL.ring.material.opacity=rp*ee;podR.ring.material.opacity=rp*ee;
+ podL.ring2.material.opacity=rp2*ee;podR.ring2.material.opacity=rp2*ee;
+ /* Senna = PANTULAN pose F1: sudutnya selalu kebalikan persis F1, jadi kayak F1 versi kiri.
+    Sway pelan (goyang maju-mundur showroom) -> gak ada lagi momen mobil ngeliatin pantat */
+ const sway=Math.sin(t*.35)*.5;SEN.car.rotation.y=.55-sway;F1C.car.rotation.y=-.55+sway;
+ ugS.material.opacity=(.3+.14*Math.sin(t*2.6))*ee;ugF.material.opacity=(.3+.14*Math.sin(t*2.2))*ee;
+ cmx+=(mx-cmx)*.04;cmy+=(my-cmy)*.04;
+ camera.position.set(Math.sin(t*.13)*.12+cmx*.22,2.75+Math.sin(t*.21)*.12-cmy*.2,camZ-ee*2.2);
+ camera.lookAt(0,1.02,0);
+ cars1.forEach((s,i)=>s.position.set(((t*38+i*67)%340)-170,.5,-115));
+ cars2.forEach((s,i)=>s.position.set(170-((t*44+i*73)%340),.5,-121));
+ beacons.forEach((b,i)=>b.material.opacity=Math.sin(t*2+i)>.4?.7:.25);
+ const pa=pGeo.attributes.position.array;for(let i=0;i<pN;i++){pa[i*3+1]+=pVel[i]*dt;if(pa[i*3+1]>7.4)pa[i*3+1]=.1}
+ pGeo.attributes.position.needsUpdate=true;
+ sky.position.copy(camera.position);
+ rd.render(scene,camera)}
+frame(performance.now());
+})()}
+</script>
+</body>
+</html>
