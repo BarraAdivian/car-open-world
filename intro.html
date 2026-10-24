@@ -63,7 +63,8 @@ body.revealed #enterWrap{transition-delay:.85s}
 #kicker{margin-top:6.5vh;font-weight:700;font-size:clamp(14px,2vw,21px);letter-spacing:8px;text-indent:8px;
  color:#7dd3fc;text-shadow:0 0 16px rgba(56,189,248,.45),0 2px 10px rgba(0,0,0,.95)}
 #title{margin:4px 0 0;font-weight:400;font-family:'Yellowtail',cursive;font-size:min(15vw,122px);line-height:1.08}
-#title span{display:inline-block;transform:rotate(-2deg);
+/* ★ JUDUL SUDAH DILURUSKAN (dulu rotate(-2deg) bikin mencong). Mau miring lagi? ganti 'none' jadi 'rotate(-2deg)' */
+#title span{display:inline-block;transform:none;
  padding:.24em .14em .28em;margin:-.24em -.14em -.28em; /* padding nutup box gradient biar ascender 'd' gak kepotong */
  background:linear-gradient(93deg,#fff 8%,#ffe0b0 38%,#ff9f2e 62%,#f43f5e 96%);
  -webkit-background-clip:text;background-clip:text;color:transparent;
@@ -144,7 +145,7 @@ function skip(){if(phase!=='studio')return;clearTimeout(T1);clearTimeout(T2);cle
 function goMenu(){if(navigating||phase!=='title')return;navigating=true;$('bye').classList.add('on');
  setTimeout(()=>location.href='home.html',470)}
 studioEl.onclick=skip;
- $('enter').onclick=goMenu;
+$('enter').onclick=goMenu;
 addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();phase==='studio'?skip():goMenu()}});
 
 if(window.THREE){(function(){
@@ -196,7 +197,11 @@ for(let k=0;k<56;k++){const ang=(k/56)*TAU;if(ang>5.4&&ang<6.25)continue;
  const rr=78+Math.random()*90,x=Math.cos(ang)*rr,z=Math.sin(ang)*rr;
  if(Math.abs(z+118)<13)continue;
  const w=12+Math.random()*16,d=12+Math.random()*16,h=14+Math.random()*62,m=cityM[k%4];
- const b=new THREE.Mesh(bGeo(w,h,d),m);b.position.set(x,h/2+.1,z);b.rotation.y=Math.random()*TAU;scene.add(b);
+ const b=new THREE.Mesh(bGeo(w,h,d),m);b.position.set(x,h/2+.1,z);
+ /* ★ GEDUNG DILURUSKAN: sisi depan gedung selalu menghadap pusat plaza (dulu diacak = mencong).
+    Mau acak lagi? ganti baris di bawah jadi: b.rotation.y=Math.random()*TAU */
+ b.rotation.y=Math.atan2(-x,-z);
+ scene.add(b);
  if(h>58){const an=new THREE.Mesh(new THREE.CylinderGeometry(.15,.2,10,6),new THREE.MeshStandardMaterial({color:'#0b0b0d',roughness:.5,metalness:.4}));an.position.set(x,h+5,z);scene.add(an);
   const bc=new THREE.Sprite(halo(0xff3040,.9));bc.position.set(x,h+10.2,z);bc.scale.setScalar(2.4);scene.add(bc);beacons.push(bc)}}
 // jalan tol + lampu mobil lewat
@@ -296,15 +301,17 @@ function resize(){rd.setSize(innerWidth,innerHeight,false);camera.aspect=innerWi
  spL.position.x=-px;spR.position.x=px;spL.target.position.set(-px,.6,0);spR.target.position.set(px,.6,0)}
 addEventListener('resize',resize);resize();
 let last=performance.now(),t=0;
+/* ★ SUDUT MOBIL: CAR_YAW = 0 -> dua mobil lurus menghadap kamera, simetris kiri-kanan (gak mencong).
+   Mau agak miring ke tengah? isi kecil aja, misal 0.2 (jangan lebih dari ~0.35). SWAY = goyang pelan kiri-kanan. */
+const CAR_YAW=0,SWAY=.05;
 function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-last)/1000);last=now;t+=dt;
  const e=phase==='studio'?0:Math.min(1,(now-revealT0)/1400),ee=1-Math.pow(1-e,3),rise=-4*(1-ee);
  podL.g.position.y=rise;podR.g.position.y=rise;
  const rp=.34+.16*Math.sin(t*2.6),rp2=.13+.06*Math.sin(t*1.9);
  podL.ring.material.opacity=rp*ee;podR.ring.material.opacity=rp*ee;
  podL.ring2.material.opacity=rp2*ee;podR.ring2.material.opacity=rp2*ee;
- /* Senna = PANTULAN pose F1: sudutnya selalu kebalikan persis F1, jadi kayak F1 versi kiri.
-    Sway pelan (goyang maju-mundur showroom) -> gak ada lagi momen mobil ngeliatin pantat */
- const sway=Math.sin(t*.35)*.5;SEN.car.rotation.y=.55-sway;F1C.car.rotation.y=-.55+sway;
+ /* Senna & F1 selalu cerminan persis (sudut kebalikan), jadi kiri-kanan seimbang */
+ const sway=Math.sin(t*.35)*SWAY;SEN.car.rotation.y=CAR_YAW-sway;F1C.car.rotation.y=-CAR_YAW+sway;
  ugS.material.opacity=(.3+.14*Math.sin(t*2.6))*ee;ugF.material.opacity=(.3+.14*Math.sin(t*2.2))*ee;
  cmx+=(mx-cmx)*.04;cmy+=(my-cmy)*.04;
  camera.position.set(Math.sin(t*.13)*.12+cmx*.22,2.75+Math.sin(t*.21)*.12-cmy*.2,camZ-ee*2.2);

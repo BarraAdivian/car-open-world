@@ -26,19 +26,49 @@ html,body{margin:0;height:100%;overflow:hidden;background:#000;font-family:'Sego
 @keyframes fl{from{border-color:#f43f5e;box-shadow:0 0 18px #f43f5e}to{border-color:#3b82f6;box-shadow:0 0 18px #3b82f6}}
 #msg{position:fixed;top:30%;left:50%;transform:translateX(-50%);font-size:30px;font-weight:800;text-shadow:0 3px 12px #000;opacity:0;transition:opacity .4s;text-align:center;pointer-events:none;width:90%}
 #prompt{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);display:none;padding:10px 22px;background:#000b;border:2px solid #22d3ee;border-radius:10px;font-size:20px;font-weight:700;letter-spacing:1px;white-space:nowrap}
-#garage,#dealer{position:fixed;left:0;right:0;bottom:0;display:none;flex-direction:column;align-items:center;gap:10px;padding:60px 0 24px;background:linear-gradient(transparent,#000b 45%);z-index:4}
-#garage h2,#dealer h2{margin:0;letter-spacing:8px;text-shadow:0 2px 10px #000}#garage p,#dealer p{margin:0;opacity:.85;font-size:13px;text-shadow:0 1px 4px #000}
-#gcards,#dcards{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;max-width:1100px}
-.gc{width:190px;padding:12px;border-radius:12px;background:#0b1220cc;border:2px solid #334155;cursor:pointer;text-align:left;transition:.15s}
-.gc:hover{border-color:#64748b}
-.gc.sel{border-color:#22d3ee;box-shadow:0 0 22px #22d3ee88;transform:translateY(-5px)}
-.gc h3{margin:8px 0 2px;font-size:16px}.gc p{margin:0 0 8px;font-size:11px;opacity:.8}
-.gc .pr{margin-top:8px;font-weight:800;color:#fbbf24;font-size:15px}
-.chip{height:6px;border-radius:3px}
-.st{font-size:10px;letter-spacing:1px;margin-top:6px;opacity:.9}.st b{display:block;height:5px;background:#1e293b;border-radius:3px;margin-top:2px}.st i{display:block;height:100%;background:#22d3ee;border-radius:3px}
-.sw{width:30px;height:30px;border-radius:50%;border:3px solid #334155;cursor:pointer}.sw.sel{border-color:#fff;box-shadow:0 0 12px #fff8}
-#gcols{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:4px}
-#down{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;align-items:center;font-size:13px;text-shadow:0 1px 4px #000}
+.shopUI{position:fixed;inset:0;display:none;flex-direction:column;justify-content:space-between;padding:clamp(16px,3vw,34px);z-index:4;pointer-events:none}
+.shopUI>*{pointer-events:auto}
+.shopUI::before{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(1100px 480px at 12% -4%,#000d,transparent 62%),radial-gradient(1200px 460px at 50% 112%,#000c,transparent 60%)}
+.shKeys{display:flex;gap:8px;align-items:center;margin-bottom:16px}
+.key{padding:3px 10px;background:#0e1626d9;border:2px solid #3b4a63;border-bottom-width:4px;border-radius:8px;font-size:12px;font-weight:800;letter-spacing:1px;color:#e2e8f0;box-shadow:0 3px 10px #0007}
+.kl{font-size:11px;letter-spacing:2px;color:#8ea2bf;font-weight:700;margin-right:12px}
+.shName{font-size:clamp(34px,5.4vw,62px);font-weight:900;font-style:italic;letter-spacing:1px;line-height:1.05;background:linear-gradient(180deg,#ffffff,#a5c8ff);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 5px 16px #000a)}
+.shPrice{margin:6px 0 2px;font-size:clamp(19px,2.4vw,28px);font-weight:900;color:#fbbf24;text-shadow:0 2px 14px #000}
+.shPrice.own{color:#4ade80}
+.shStats{margin-top:14px;width:min(330px,74vw);display:flex;flex-direction:column;gap:9px}
+.stat .sl{display:flex;justify-content:space-between;font-size:12px;font-weight:800;letter-spacing:2.5px;color:#dbe4f0;margin-bottom:4px;text-shadow:0 1px 6px #000}
+.stat .sl b{color:#fb7185}
+.tr{height:9px;background:#0b1322d9;border:1px solid #2c3a52;border-radius:6px;overflow:hidden;box-shadow:0 2px 10px #0008}
+.tr i{display:block;height:100%;width:0;background:linear-gradient(90deg,#f43f5e,#fb923c);border-radius:6px;transition:width .5s cubic-bezier(.2,.8,.2,1);box-shadow:0 0 12px #f43f5e77}
+.shPaint{display:flex;gap:12px;align-items:flex-start;margin-top:16px}
+.shPaint>span{font-size:11px;font-weight:800;letter-spacing:3px;color:#8ea2bf;padding-top:6px;text-shadow:0 1px 4px #000}
+#gcols{display:flex;gap:8px;flex-wrap:wrap;max-width:320px}
+.sw{width:26px;height:26px;border-radius:50%;border:2px solid #3b4a63;cursor:pointer;transition:.15s;box-shadow:0 3px 8px #0008}
+.sw:hover{transform:scale(1.18)}
+.sw.sel{border-color:#fff;box-shadow:0 0 14px #fffc;transform:scale(1.12)}
+.shBtns{display:flex;gap:12px;margin-top:18px;flex-wrap:wrap}
+.shBtns button{font-family:inherit;font-size:clamp(14px,1.6vw,17px);font-weight:900;letter-spacing:1.5px;padding:13px 30px;border-radius:12px;cursor:pointer;border:2px solid transparent;transition:.15s;color:#fff;text-shadow:0 1px 6px #0006}
+.shBtns .buy{background:linear-gradient(180deg,#34d399,#059669);border-color:#4ade80;box-shadow:0 8px 24px #10b98155}
+.shBtns .buy:hover{filter:brightness(1.15);transform:translateY(-2px)}
+.shBtns .buy.off{opacity:.35;cursor:not-allowed;filter:grayscale(.6);transform:none;box-shadow:none}
+.shBtns .sell{background:#0e1626d9;border-color:#5b3a44;color:#fda4af}
+.shBtns .sell:hover{border-color:#f87171;color:#fecdd3;transform:translateY(-2px)}
+.shBtns .sell.off{opacity:.35;cursor:not-allowed;transform:none}
+.shCash{position:fixed;top:18px;right:clamp(16px,3vw,34px);font-size:clamp(17px,2vw,24px);font-weight:800;text-shadow:0 2px 10px #000;letter-spacing:.5px}
+.shBot{display:flex;flex-direction:column;align-items:center;gap:9px}
+.shRow{display:flex;align-items:center;gap:12px;max-width:min(900px,96vw)}
+.arr{width:46px;height:46px;flex:0 0 auto;border-radius:12px;background:#0e1626d9;border:2px solid #3b4a63;color:#e2e8f0;font-size:17px;cursor:pointer;transition:.15s;font-family:inherit}
+.arr:hover{border-color:#22d3ee;color:#22d3ee;box-shadow:0 0 18px #22d3ee55}
+.strip{display:flex;gap:10px;overflow-x:auto;padding:10px 6px;scrollbar-width:thin}
+.thm{position:relative;flex:0 0 auto;width:122px;border-radius:12px;background:#0b1220d9;border:2px solid #2c3a52;cursor:pointer;transition:.15s;overflow:hidden}
+.thm img{display:block;width:100%;height:64px;object-fit:cover;background:radial-gradient(circle at 50% 62%,#22304e,#0a0f1a 78%)}
+.thm span{position:absolute;left:6px;top:5px;font-size:10px;font-weight:800;color:#fff;background:#000a;border-radius:6px;padding:1px 6px}
+.thm .ownb{position:absolute;right:5px;top:5px;font-size:9px;font-weight:800;letter-spacing:1px;color:#052e16;background:#4ade80;border-radius:6px;padding:1px 6px}
+.thm:hover{border-color:#7b8ba3;transform:translateY(-3px)}
+.thm.sel{border-color:#4ade80;box-shadow:0 0 22px #4ade805f,0 10px 22px #0009;transform:translateY(-5px)}
+.shHint{margin:0;font-size:12.5px;color:#9fb0c8;text-shadow:0 1px 4px #000}
+body.shop #hud,body.shop #map,body.shop #legend,body.shop #money,body.shop #wanted,body.shop #msg,body.shop #prompt,body.shop #cd,body.shop #raceHud{opacity:0!important;pointer-events:none!important;transition:opacity .25s}
+body.shop #toast{z-index:9}
 #modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:#000b;z-index:6}
 #mbox{background:#0b1220ee;border:2px solid #334155;border-radius:16px;padding:22px 28px;min-width:420px;max-width:880px;text-align:center}
 #mbox h2{margin:0 0 14px;letter-spacing:6px}#mbox p{margin:6px 0}#mh{font-size:12px;opacity:.7}
@@ -57,14 +87,38 @@ html,body{margin:0;height:100%;overflow:hidden;background:#000;font-family:'Sego
 <div id="hud"><div id="carn" style="font-size:14px;letter-spacing:5px;opacity:.85"></div><div id="spd">0</div><small>KM/H &nbsp;·&nbsp; GEAR <b id="gear">1</b></small><div id="bar"><i id="nit"></i></div><small id="tod"></small></div>
 <div id="money"></div><div id="toast"></div><div id="legend"></div><div id="cd"></div><div id="raceHud"></div>
 <div id="wanted"></div><div id="msg"></div><div id="prompt"></div>
-<div id="garage"><h2>GARASI</h2><div id="gcards"></div><div id="gcols"></div><p>Klik mobil atau tekan 1-9 / ← → ganti mobil &nbsp;·&nbsp; klik bulatan warna / ↑ ↓ ganti cat &nbsp;·&nbsp; tekan E atau Esc untuk keluar</p></div>
-<div id="dealer"><h2>DEALER</h2><div id="dcards"></div><div id="down"></div><p>Klik kartu untuk lihat mobil &nbsp;·&nbsp; klik BELI / JUAL &nbsp;·&nbsp; ← → ganti mobil &nbsp;·&nbsp; E atau Esc keluar</p></div>
+<div id="garage" class="shopUI">
+ <div class="shTop">
+  <div class="shKeys"><span class="key">ESC</span><span class="kl">KELUAR</span><span class="key">E</span><span class="kl">OK</span></div>
+  <div class="shName" id="gName"></div>
+  <div class="shStats" id="gStats"></div>
+  <div class="shPaint"><span>CAT</span><div id="gcols"></div></div>
+ </div>
+ <div class="shBot">
+  <div class="shRow"><button class="arr" id="gPrev">◀</button><div class="strip" id="gStrip"></div><button class="arr" id="gNext">▶</button></div>
+  <p class="shHint">← → ganti mobil &nbsp;·&nbsp; 1-9 pilih cepat &nbsp;·&nbsp; ↑ ↓ atau klik bulatan warna ganti cat &nbsp;·&nbsp; E / Esc keluar</p>
+ </div>
+</div>
+<div id="dealer" class="shopUI">
+ <div class="shTop">
+  <div class="shKeys"><span class="key">ESC</span><span class="kl">KELUAR</span><span class="key">E</span><span class="kl">OK</span></div>
+  <div class="shName" id="dName"></div>
+  <div class="shPrice" id="dPrice"></div>
+  <div class="shStats" id="dStats"></div>
+  <div class="shBtns"><button id="dBuy" class="buy"></button><button id="dSell" class="sell"></button></div>
+ </div>
+ <div class="shCash" id="dCash"></div>
+ <div class="shBot">
+  <div class="shRow"><button class="arr" id="dPrev">◀</button><div class="strip" id="dStrip"></div><button class="arr" id="dNext">▶</button></div>
+  <p class="shHint">← → lihat mobil &nbsp;·&nbsp; klik BELI / JUAL &nbsp;·&nbsp; E / Esc keluar</p>
+ </div>
+</div>
 <div id="modal"><div id="mbox"><h2 id="mt"></h2><div id="mb"></div><p id="mh"></p></div></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 const $=id=>document.getElementById(id),S=120,RAD=3,TAU=Math.PI*2,clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 // ---------- STATE GLOBAL ----------
-let mode='world',race=null,menu=null,hits=0,lvl=1,hitCool=0,rbT=0,zone=null,dPv=3;
+let mode='world',race=null,menu=null,hits=0,lvl=1,hitCool=0,rbT=0,zone=null,dPv=0;
 const SAVE='owd_v6';let money=0,owned=[4],colors={};
 try{const s=JSON.parse(localStorage.getItem(SAVE)||'null');if(s){if(typeof s.money==='number')money=s.money;if(Array.isArray(s.owned)&&s.owned.length)owned=s.owned;colors=s.colors||{}}}catch(e){}
 const save=()=>{try{localStorage.setItem(SAVE,JSON.stringify({money,owned,colors}))}catch(e){}};
@@ -385,6 +439,55 @@ cars.forEach((c,i)=>{c.spec=SPECS[i];scene.add(c.car);c.car.visible=false});
 [-.65,.65].forEach(x=>{const l=new THREE.SpotLight(0xfff0d0,0,130,.55,.5,1),t=new THREE.Object3D();l.position.set(x,.7,2.3);t.position.set(x,.3,30);l.target=t;heads.push(l)});
 const lampL=[...Array(6)].map(()=>{const l=new THREE.PointLight(0xffc880,0,50,1.3);scene.add(l);return l});
 const polLights=[0,1].map(()=>{const l=new THREE.PointLight(0xff2020,0,45,1.2);scene.add(l);return l});
+
+// ---------- SHOWROOM (panggung garasi & dealer) ----------
+const showScene=new THREE.Scene();
+const showRoot=new THREE.Group();showScene.add(showRoot);
+const showCam=new THREE.PerspectiveCamera(38,1,.1,100);showCam.position.set(6.3,2.4,7.1);showCam.lookAt(0,.7,0);
+const showBgTex=cv(512,512,(g,w,h)=>{const gr=g.createLinearGradient(0,0,0,h);gr.addColorStop(0,'#0b1122');gr.addColorStop(.52,'#141d33');gr.addColorStop(1,'#04060b');g.fillStyle=gr;g.fillRect(0,0,w,h);
+ const rg=g.createRadialGradient(w*.5,h*.62,30,w*.5,h*.62,w*.55);rg.addColorStop(0,'rgba(70,130,255,.22)');rg.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=rg;g.fillRect(0,0,w,h)});
+showScene.background=showBgTex;
+// env map studio -> pantulan cat mobil keluar di showroom
+const showEnv=(()=>{const c=document.createElement('canvas');c.width=256;c.height=128;const g=c.getContext('2d');
+ const gr=g.createLinearGradient(0,0,0,128);gr.addColorStop(0,'#8fa3c2');gr.addColorStop(.42,'#3a4452');gr.addColorStop(.5,'#0a0d13');gr.addColorStop(1,'#04060a');g.fillStyle=gr;g.fillRect(0,0,256,128);
+ g.fillStyle='rgba(255,255,255,.55)';g.fillRect(24,10,64,16);g.fillRect(150,14,80,12);
+ const tx=new THREE.CanvasTexture(c);tx.encoding=THREE.sRGBEncoding;const t=pm.fromEquirectangular(tx);tx.dispose();return t})();
+showScene.environment=showEnv.texture;
+// lantai + podium elips + cincin neon
+const showFloor=new THREE.Mesh(new THREE.CircleGeometry(60,48).rotateX(-Math.PI/2),new THREE.MeshStandardMaterial({color:'#07090d',roughness:.85,metalness:.05,envMapIntensity:.22}));
+showFloor.position.y=-.04;showRoot.add(showFloor);
+showScene.fog=new THREE.Fog(0x0b1122,30,78);
+const podEll=new THREE.Group();podEll.scale.z=.82;showRoot.add(podEll);
+const podTop=new THREE.Mesh(new THREE.CylinderGeometry(3.9,4.2,.32,64),new THREE.MeshStandardMaterial({color:'#151b27',roughness:.6,metalness:.75,envMapIntensity:.35}));
+podTop.position.y=-.16;podEll.add(podTop);
+// blob shadow lembut di bawah mobil (bebas artefak shadow map)
+const carShadow=new THREE.Mesh(glowG,new THREE.MeshBasicMaterial({map:smTex,color:0x000000,transparent:true,opacity:.58,depthWrite:false}));
+carShadow.scale.set(6.6,1,3.6);carShadow.position.y=.015;carShadow.renderOrder=1;podEll.add(carShadow);
+const podRingM=new THREE.MeshBasicMaterial({color:'#22d3ee',transparent:true,opacity:.85});
+const podRing=new THREE.Mesh(new THREE.TorusGeometry(4.02,.035,10,100).rotateX(Math.PI/2),podRingM);podRing.position.y=.02;podEll.add(podRing);
+const podRing2=new THREE.Mesh(new THREE.TorusGeometry(4.85,.025,10,100).rotateX(Math.PI/2),new THREE.MeshBasicMaterial({color:'#fb923c',transparent:true,opacity:.3}));podRing2.position.y=.015;podEll.add(podRing2);
+// lampu studio: key + rim biru + fill oranye
+const sKey=new THREE.SpotLight(0xffffff,1.7,70,.6,.45,1.1);sKey.position.set(7,11,8);
+showScene.add(sKey,sKey.target);sKey.target.position.set(0,.6,0);
+const sRim=new THREE.SpotLight(0x38bdf8,1.25,70,.7,.6,1.1);sRim.position.set(-8,6,-9);showScene.add(sRim,sRim.target);sRim.target.position.set(0,.9,0);
+const sFill=new THREE.PointLight(0xffb27a,.55,40,1.4);sFill.position.set(-5.5,3.6,6);showScene.add(sFill);
+showScene.add(new THREE.HemisphereLight(0x9db8ff,0x0a0d12,.22));
+// scene mini buat foto thumbnail mobil (potret asli tiap model)
+const thumbScene=new THREE.Scene();thumbScene.environment=showEnv.texture;
+thumbScene.add(new THREE.HemisphereLight(0xbfd4ff,0x18202e,.65));
+const tdl=new THREE.DirectionalLight(0xffffff,1.15);tdl.position.set(4,7,5);thumbScene.add(tdl);
+const tdl2=new THREE.DirectionalLight(0x88b6ff,.45);tdl2.position.set(-5,4,-5);thumbScene.add(tdl2);
+const thumbCam=new THREE.PerspectiveCamera(30,168/96,.1,60);thumbCam.position.set(4.8,2,5.7);thumbCam.lookAt(0,.55,0);
+let thumbR=null;const thumbCache={};
+function thumbURL(i){const key=i+'_'+cars[i].ci;if(thumbCache[key])return thumbCache[key];
+ thumbR=thumbR||new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});
+ thumbR.setSize(168,96,false);thumbR.outputEncoding=THREE.sRGBEncoding;thumbR.toneMapping=THREE.ACESFilmicToneMapping;thumbR.toneMappingExposure=1;
+ const car=cars[i].car,pp=car.parent,vis=car.visible,ry=car.rotation.y;
+ thumbScene.add(car);car.visible=true;car.position.set(0,0,0);car.rotation.set(0,.55,0);cars[i].body.rotation.set(0,0,0);cars[i].body.position.set(0,0,0);
+ thumbR.render(thumbScene,thumbCam);
+ const url=thumbR.domElement.toDataURL('image/png');
+ if(pp)pp.add(car);car.visible=vis;car.rotation.y=ry;
+ thumbCache[key]=url;return url}
 
 // ---------- LALU LINTAS ----------
 const traffic=[],tt=['sedan','hatch','suv','van','truck','taxi','wedge','sedan','truck','hatch','police','suv','coupe','sedan','police','muscle','wedge','hatch','coupe','sedan'];
@@ -728,15 +831,15 @@ addEventListener('keydown',e=>{const k=e.code==='Space'?'space':e.key.toLowerCas
  if(menu==='pause'){if(k==='escape'||k==='p')closeMenu();return}
  if(menu==='result'){if(k==='e'||k==='enter')leaveRace();return}
  if(menu==='raceSel'){if(k==='escape'||k==='e')closeMenu();if(k==='1')startRace('circuit');if(k==='2')startRace('beach');return}
- if(menu==='garage'){const ol=ownedSorted();
+ if(menu==='garage'){
   if(k==='e'||k==='escape'){closeMenu();return}
-  const n='123456789'.indexOf(k);if(n>=0&&ol[n]!==undefined)setCar(ol[n]);
-  if(k==='arrowleft'||k==='arrowright'){const c=ol.indexOf(cars.indexOf(P));setCar(ol[(c+(k==='arrowright'?1:-1)+ol.length)%ol.length])}
+  const ol=ownedSorted(),n='123456789'.indexOf(k);if(n>=0&&ol[n]!==undefined)shopPick(ol[n],true);
+  if(k==='arrowleft'||k==='arrowright')shopCycle(k==='arrowright'?1:-1);
   if(k==='arrowup'||k==='arrowdown')cycColor(k==='arrowup'?1:-1);return}
  if(menu==='dealer'){
   if(k==='e'||k==='escape'){closeMenu();return}
-  if(k==='arrowleft'||k==='arrowright'){const l=dealerList(),c=Math.max(0,l.indexOf(dPv));dPv=l[(c+(k==='arrowright'?1:-1)+l.length)%l.length];showPv();renderDealer()}
-  if(k==='enter'&&!owned.includes(dPv))buy(dPv);return}
+  if(k==='arrowleft'||k==='arrowright')shopCycle(k==='arrowright'?1:-1);
+  if(k==='enter'&&!owned.includes(shopSel))buy(shopSel);return}
  if(k==='e'){if(zone&&!wanted&&mode==='world')openZone(zone)}
  if(k==='escape'||k==='p'){openPause();return}
  if(k==='c')camMode^=1;if(k==='v')cycColor(1);if(k==='n')setTod((tod+1)%3);if(k==='m'){muted=!muted;if(au)au.g.gain.value=muted?0:.05}
@@ -816,37 +919,54 @@ function minimap(){const s=.32,c=Math.cos(st.h),sn=Math.sin(st.h);mc.setTransfor
   if(out){mc.save();mc.translate(X,Y);mc.rotate(Math.atan2(sy,sx));mc.fillStyle=z.col;mc.beginPath();mc.moveTo(15,0);mc.lineTo(3,-8);mc.lineTo(3,8);mc.fill();mc.restore()}
   mc.fillStyle=z.col;mc.beginPath();mc.arc(X,Y,8,0,TAU);mc.fill();mc.fillStyle='#071018';mc.font='bold 11px sans-serif';mc.textAlign='center';mc.textBaseline='middle';mc.fillText(z.L,X,Y+.5)});
  mc.fillStyle='#38bdf8';mc.beginPath();mc.moveTo(85,74);mc.lineTo(92,92);mc.lineTo(85,88);mc.lineTo(78,92);mc.fill()}
-function resize(){rd.setSize(innerWidth,innerHeight,false);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix()}
+function resize(){rd.setSize(innerWidth,innerHeight,false);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();
+ const a=innerWidth/innerHeight;showRoot.scale.setScalar(a<1?.74:1);showCam.aspect=a;showCam.fov=a<1?55:38;showCam.updateProjectionMatrix()}
 addEventListener('resize',resize);resize();
 
 // ---------- MENU: GARASI / DEALER / RACE / PAUSE ----------
-const ownedSorted=()=>owned.slice().sort((a,b)=>a-b),sellVal=ci=>Math.floor(SPECS[ci].price*.5);
-const bars=s=>[['KECEPATAN',s.stat[0]],['AKSELERASI',s.stat[1]],['HANDLING',s.stat[2]]].map(([n,v])=>`<div class="st">${n}<b><i style="width:${v}%"></i></b></div>`).join('');
-let gcardEl={};
-function renderGarage(){const box=$('gcards');box.innerHTML='';gcardEl={};
- ownedSorted().forEach((ci,n)=>{const s=SPECS[ci],d=document.createElement('div');d.className='gc'+(cars[ci]===P?' sel':'');
-  d.innerHTML=`<div class="chip" style="background:${SW[cars[ci].ci]}"></div><h3>${n+1}. ${s.name}</h3><p>${s.desc}</p>${bars(s)}`;
-  d.onclick=()=>setCar(ci);box.appendChild(d);gcardEl[ci]=d})}
+const ownedSorted=()=>owned.slice().sort((a,b)=>a-b),sellVal=ci=>Math.floor(SPECS[ci].price*.5),SHOP_LIST=[0,1,2,3,4,5];
+const statHtml=s=>[['KECEPATAN',s.stat[0]],['AKSELERASI',s.stat[1]],['HANDLING',s.stat[2]]].map(([n,v])=>`<div class="stat"><div class="sl"><span>${n}</span><b>${v}</b></div><div class="tr"><i></i></div></div>`).join('');
+function animBars(id,s){const el=$(id);requestAnimationFrame(()=>requestAnimationFrame(()=>el.querySelectorAll('.tr i').forEach((b,k)=>b.style.width=[s.stat[0],s.stat[1],s.stat[2]][k]+'%')))}
 function setCar(i){if(!owned.includes(i))return;cars.forEach((c,j)=>c.car.visible=j===i);P=cars[i];heads.forEach(l=>{P.car.add(l);P.car.add(l.target)});
- for(const k in gcardEl)gcardEl[k].classList.toggle('sel',+k===i);$('carn').textContent=P.spec.name;[...$('gcols').children].forEach((d,j)=>d.classList.toggle('sel',j===P.ci))}
-function setColor(c,i){P.paint.color.set(c);P.ci=i;const ci=cars.indexOf(P);colors[ci]=i;save();const el=gcardEl[ci];if(el)el.querySelector('.chip').style.background=c;[...$('gcols').children].forEach((d,j)=>d.classList.toggle('sel',j===i))}
+ $('carn').textContent=P.spec.name;[...$('gcols').children].forEach((d,j)=>d.classList.toggle('sel',j===P.ci))}
+function setColor(c,i){P.paint.color.set(c);P.ci=i;const ci=cars.indexOf(P);colors[ci]=i;save();[...$('gcols').children].forEach((d,j)=>d.classList.toggle('sel',j===i));
+ if(menu==='garage'&&shopSel===ci){Object.keys(thumbCache).forEach(k=>{if(+k.split('_')[0]===ci)delete thumbCache[k]});shopShow(ci)}}
 SW.forEach((c,i)=>{const d=document.createElement('div');d.className='sw';d.style.background=c;d.onclick=()=>setColor(c,i);$('gcols').appendChild(d)});
 const cycColor=n=>{const i=((P.ci||0)+n+SW.length)%SW.length;setColor(SW[i],i)};
-function openGarage(){menu='garage';const z=ZN[0];Object.assign(st,{x:z.x+1,z:z.z,h:Math.PI/2,vx:0,vz:0,steer:0});renderGarage();$('garage').style.display='flex';setCar(cars.indexOf(P))}
-function showPv(){cars.forEach((c,j)=>c.car.visible=j===dPv)}
-const dealerList=()=>[3,4,5,0,1,2].filter(i=>i>=3||!owned.includes(i));
-function renderDealer(){const el=$('dcards');el.innerHTML='';
- dealerList().forEach(ci=>{const s=SPECS[ci],has=owned.includes(ci),d=document.createElement('div');d.className='gc'+(ci===dPv?' sel':'');
-  d.innerHTML=`<div class="chip" style="background:${s.col}"></div><h3>${s.name}</h3><p>${s.desc}</p>${bars(s)}<div class="pr">${has?'MILIKMU':fmt(s.price)}</div>`;
-  const b=document.createElement('button');b.className='btn sm';b.textContent=has?'Dimiliki':'BELI';if(has)b.classList.add('off');b.onclick=e=>{e.stopPropagation();if(!has)buy(ci)};d.appendChild(b);
-  d.onclick=()=>{dPv=ci;showPv();renderDealer()};el.appendChild(d)});
- const o=$('down');o.innerHTML='<b>JUAL MOBILMU:&nbsp;</b>';ownedSorted().forEach(ci=>{const b=document.createElement('button');b.className='btn sm';b.textContent=`${SPECS[ci].name} +${fmt(sellVal(ci))}`;b.onclick=()=>sell(ci);o.appendChild(b)})}
-function openDealer(){menu='dealer';const z=ZN[1];Object.assign(st,{x:z.x+1,z:z.z,h:Math.PI/2,vx:0,vz:0,steer:0});dPv=3;showPv();renderDealer();$('dealer').style.display='flex'}
+let shopSel=-1,showCar=null,shopSpin=0;
+function shopShow(i){shopSel=i;const c=cars[i],inG=menu==='garage',s=c.spec;
+ if(showCar!==c){if(showCar)showRoot.remove(showCar.car);showCar=c;showRoot.add(c.car);shopSpin=-.35}
+ c.car.visible=true;c.car.position.set(0,0,0);c.car.rotation.set(0,0,0);c.body.rotation.set(0,0,0);c.body.position.set(0,0,0);c.wheels.forEach(w=>w.w.rotation.y=0);
+ $(inG?'gName':'dName').textContent=s.name;
+ if(inG)$('gStats').innerHTML=statHtml(s);
+ else{$('dStats').innerHTML=statHtml(s);
+  const has=owned.includes(i),pr=$('dPrice');
+  pr.textContent=has?'MOBIL INI MILIKMU':fmt(s.price);pr.classList.toggle('own',has);
+  const bb=$('dBuy');bb.classList.toggle('off',has);bb.textContent=has?'✓ DIMILIKI':'BELI · '+fmt(s.price);
+  const bs=$('dSell');bs.classList.toggle('off',!has||owned.length<=1);bs.textContent='JUAL · '+fmt(sellVal(i));
+  const ca=$('dCash');ca.textContent=money<0?'HUTANG '+fmt(money):'SALDO '+fmt(money);ca.style.color=money<0?'#f87171':'#86efac'}
+ animBars(inG?'gStats':'dStats',s);
+ const strip=$(inG?'gStrip':'dStrip'),list=inG?ownedSorted():SHOP_LIST;
+ strip.innerHTML='';list.forEach((ci,n)=>{const has=owned.includes(ci),d=document.createElement('div');
+  d.className='thm'+(ci===i?' sel':'');
+  d.innerHTML=`<img src="${thumbURL(ci)}" draggable="false" alt=""><span>${n+1}</span>${(!inG&&has)?'<b class="ownb">MILIK</b>':''}`;
+  d.onclick=()=>shopPick(ci,menu==='garage');strip.appendChild(d)});
+ const se=strip.querySelector('.sel');if(se)se.scrollIntoView({inline:'center',block:'nearest'})}
+function shopPick(ci,own){if(ci===shopSel)return;if(own)setCar(ci);else dPv=ci;shopShow(ci)}
+function shopCycle(dir){const list=menu==='garage'?ownedSorted():SHOP_LIST;shopPick(list[(list.indexOf(shopSel)+dir+list.length)%list.length],menu==='garage')}
+ $('gPrev').onclick=()=>shopCycle(-1);$('gNext').onclick=()=>shopCycle(1);
+ $('dPrev').onclick=()=>shopCycle(-1);$('dNext').onclick=()=>shopCycle(1);
+ $('dBuy').onclick=()=>{if(menu==='dealer'&&!owned.includes(shopSel))buy(shopSel)};
+ $('dSell').onclick=()=>{if(menu==='dealer'&&owned.includes(shopSel))sell(shopSel)};
+function openGarage(){menu='garage';const z=ZN[0];Object.assign(st,{x:z.x+1,z:z.z,h:Math.PI/2,vx:0,vz:0,steer:0});
+ document.body.classList.add('shop');heads.forEach(l=>l.intensity=0);haloH.opacity=0;cars.forEach(c=>{c._emi=c.paint.envMapIntensity;c.paint.envMapIntensity=Math.min(c.paint.envMapIntensity,.9)});$('garage').style.display='flex';shopShow(cars.indexOf(P))}
+function openDealer(){menu='dealer';const z=ZN[1];Object.assign(st,{x:z.x+1,z:z.z,h:Math.PI/2,vx:0,vz:0,steer:0});
+ document.body.classList.add('shop');heads.forEach(l=>l.intensity=0);haloH.opacity=0;cars.forEach(c=>{c._emi=c.paint.envMapIntensity;c.paint.envMapIntensity=Math.min(c.paint.envMapIntensity,.9)});$('dealer').style.display='flex';shopShow(dPv)}
 function buy(ci){const s=SPECS[ci];if(money<s.price){toast(`Uang tidak cukup! Butuh ${fmt(s.price)}`+(money<0?'<br><small>Lunasi hutang dulu lewat hadiah race / lolos polisi</small>':''),'#f87171');return}
- money-=s.price;owned.push(ci);save();updMoney();renderDealer();renderGarage();toast(`Membeli ${s.name} −${fmt(s.price)}<br><small>Mobil tersedia di garasi</small>`,'#fbbf24')}
+ money-=s.price;owned.push(ci);save();updMoney();shopShow(shopSel);toast(`Membeli ${s.name} −${fmt(s.price)}<br><small>Mobil tersimpan di garasi</small>`,'#fbbf24')}
 function sell(ci){if(owned.length<=1){toast('Minimal harus punya 1 mobil!','#f87171');return}const v=sellVal(ci);owned=owned.filter(x=>x!==ci);money+=v;save();updMoney();
- if(cars[ci]===P)setCar(ownedSorted()[0]);if(menu==='dealer'){dPv=ci;showPv()}renderDealer();renderGarage();
- toast(`Menjual ${SPECS[ci].name} +${fmt(v)}<br><small>Mobil masuk daftar dealer, bisa dibeli lagi</small>`+(money<0?`<br><small>Sisa hutang ${fmt(money)}</small>`:''),'#4ade80')}
+ if(ci===cars.indexOf(P))setCar(ownedSorted()[0]);shopShow(shopSel);
+ toast(`Menjual ${SPECS[ci].name} +${fmt(v)}<br><small>Mobil masuk lagi ke daftar dealer</small>`+(money<0?`<br><small>Sisa hutang ${fmt(money)}</small>`:''),'#4ade80')}
 function showModal(t,h,hint){$('mt').textContent=t;$('mb').innerHTML=h;$('mh').textContent=hint||'';$('modal').style.display='flex'}
 function hideModal(){$('modal').style.display='none'}
 function openRaceSel(){menu='raceSel';const z=ZN[2];Object.assign(st,{x:z.x+1,z:z.z,h:Math.PI/2,vx:0,vz:0,steer:0});
@@ -857,12 +977,15 @@ function openPause(){menu='pause';
  if(mode==='world'){const dis=wanted?' off':'';h+=ZN.map(z=>`<button class="btn${dis}" style="border-color:${z.col}" onclick="teleport('${z.id}')">📍 Ke Area ${z.id==='sell'?'Sell (Dealer)':z.id==='garage'?'Garasi':'Race'}</button>`).join('')+(wanted?'<p style="color:#f87171;font-size:13px">Tidak bisa pindah area saat dikejar polisi</p>':'')}
  else h+='<button class="btn" onclick="leaveRace()">🚪 Keluar dari Race (tanpa hadiah)</button>';
  h+='<button class="btn" style="border-color:#64748b" onclick="gotoHome()">🏠 MENU UTAMA</button>';showModal('PAUSE',h,'P / Esc = lanjut')}
-function closeMenu(){const was=menu;menu=null;$('garage').style.display='none';$('dealer').style.display='none';hideModal();if(was==='dealer')cars.forEach(c=>c.car.visible=c===P)}
+function closeMenu(){menu=null;$('garage').style.display='none';$('dealer').style.display='none';hideModal();document.body.classList.remove('shop');
+ if(showCar){showRoot.remove(showCar.car);scene.add(showCar.car);showCar.car.visible=false;showCar=null}
+ cars.forEach(c=>c.car.visible=c===P);cars.forEach(c=>{if(c._emi!==undefined)c.paint.envMapIntensity=c._emi});heads.forEach(l=>l.intensity=TOD[tod].lamp*6);haloH.opacity=TOD[tod].lamp*.9;
+ P.car.position.set(st.x,0,st.z);P.car.rotation.y=st.h;P.body.position.y=0}
 function gotoHome(){save();location.href='home.html'}
 function teleport(id){if(wanted){toast('Tidak bisa pindah saat dikejar polisi!','#f87171');return}const z=ZN.find(q=>q.id===id);closeMenu();
  Object.assign(st,{x:z.x,z:z.z,h:Math.PI/2,vx:0,vz:0,steer:0});camH=st.h;updChunks(999);camera.position.set(st.x-8,3.2,st.z)}
 
-setTod(1);renderGarage();setCar(ownedSorted()[0]);updMoney();updChunks(999);traffic.forEach(placeT);peds.forEach(o=>{spawnPed(o,true);placePed(o)});
+setTod(1);setCar(ownedSorted()[0]);updMoney();updChunks(999);traffic.forEach(placeT);peds.forEach(o=>{spawnPed(o,true);placePed(o)});
 camera.position.set(0,4,10);
 let last=performance.now(),fcount=0,gAng=0;
 function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-last)/1000);last=now;const T=TOD[tod];flash=Math.floor(now/150)%2;
@@ -870,9 +993,12 @@ function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-last
  simT+=dt;hitCool=Math.max(0,hitCool-dt);fcount++;
  const ix={g:0,y:1,r:2};sigMat[0].map.offset.x=ix[lightState(0)]/3;sigMat[1].map.offset.x=ix[lightState(1)]/3;
  ZN.forEach(z=>{z.ring.opacity=.5+.3*Math.sin(now*.004);z.bea.opacity=.18+.08*Math.sin(now*.003)});
- const gOpen=menu==='garage'||menu==='dealer',PV=menu==='dealer'?cars[dPv]:P;
+ const gOpen=menu==='garage'||menu==='dealer';
  let sp=0,vf=0,up=false;
- if(gOpen){st.vx=st.vz=0;PV.car.position.set(st.x,0,st.z);PV.car.rotation.y=st.h;PV.tm.opacity=.35*T.lamp;PV.body.rotation.set(0,0,0)}
+ if(gOpen){st.vx=st.vz=0;shopSpin+=dt*.45;
+  if(showCar){showCar.car.rotation.y=shopSpin;showCar.tm.opacity=.35*T.lamp;
+   showCar.body.position.y=Math.sin(now*.0011)*.02;showCar.body.rotation.z=Math.sin(now*.0007)*.008;
+   podRingM.opacity=.6+.3*Math.sin(now*.003)}}
  else{({sp,vf,up}=drive(dt))}
  const fx=Math.sin(st.h),fz=Math.cos(st.h);
  if(mode==='world'){
@@ -920,7 +1046,7 @@ function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-last
  fill.position.set(st.x-fx*25,30,st.z-fz*25);fill.target.position.set(st.x,0,st.z);fill.intensity=gOpen?.9:.6;
  gl.position.set(st.x+4,10,st.z-2);gl.intensity=gOpen?5:0;
  // kamera
- if(gOpen){gAng+=dt*.6;camera.fov+=(50-camera.fov)*Math.min(1,dt*5);camera.updateProjectionMatrix();camera.position.set(st.x+Math.cos(gAng)*7.5,2.6,st.z+Math.sin(gAng)*7.5);camera.lookAt(st.x,.8,st.z)}
+ if(gOpen){showCam.position.x=6.3+Math.sin(now*.0004)*.25;showCam.position.y=2.4+Math.sin(now*.0006)*.08;showCam.lookAt(0,.7,0)}
  else{
   camH+=(((st.h-camH+Math.PI*3)%TAU)-Math.PI)*Math.min(1,dt*4);
   const fov=62+Math.min(sp,100)*.22+(K.shift&&st.nitro>0&&up?8:0);camera.fov+=(fov-camera.fov)*Math.min(1,dt*5);camera.updateProjectionMatrix();
@@ -934,7 +1060,7 @@ function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-last
  const nitOn=K.shift&&st.nitro>0&&up&&!gOpen;$('fx').style.opacity=gOpen?.15:.2+clamp(sp/70,0,1)*.6;$('fx').style.boxShadow=nitOn?'inset 0 0 140px #38bdf8aa':'none';
  if(au){const fr=45+(sp%14)*6+(up?20:0)+Math.min(5,sp/14)*8;au.o.frequency.value=fr;au.o2.frequency.value=fr*.5;au.f.frequency.value=450+(up?700:0)+sp*6;
   au.so.frequency.value=900+300*Math.sin(now*.008);au.sg.gain.value=wanted&&!muted?.02:0}
- minimap();rd.render(scene,camera)}
+ minimap();if(gOpen){rd.toneMappingExposure=T.ex*.78;rd.render(showScene,showCam);rd.toneMappingExposure=T.ex}else rd.render(scene,camera)}
 requestAnimationFrame(frame);
 </script>
 </body>
